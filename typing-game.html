@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타이핑 마스터</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: #20c997;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-grow: 1;
+            padding: 20px;
+        }
+        
+        .difficulty-container {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .difficulty-btn {
+            background-color: #20c997;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        
+        .difficulty-btn:hover {
+            background-color: #12b886;
+        }
+        
+        .game-area {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .score-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .timer {
+            color: #fa5252;
+            font-weight: bold;
+        }
+        
+        .text-display {
+            background-color: #f1f3f5;
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            line-height: 1.6;
+            min-height: 100px;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+        
+        .highlight {
+            background-color: #c3fae8;
+        }
+        
+        .error {
+            background-color: #ffe3e3;
+            text-decoration: underline wavy #fa5252;
+        }
+        
+        .completed {
+            color: #adb5bd;
+        }
+        
+        .text-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.2s;
+            resize: none;
+            height: 100px;
+        }
+        
+        .text-input:focus {
+            border-color: #20c997;
+        }
+        
+        .result-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .result-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #20c997;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+        }
+        
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            background-color: #20c997;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            background-color: #12b886;
+        }
+        
+        .stats-table {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .stats-table th, .stats-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stats-table th {
+            background-color: #f1f3f5;
+            font-weight: bold;
+        }
+        
+        footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .result-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-btn" onclick="window.location.href='index.html'">홈</button>
+        <h1>타이핑 마스터</h1>
+    </div>
+    
+    <div class="container">
+        <div class="difficulty-container" id="difficulty-container">
+            <h2>난이도 선택</h2>
+            <p>나에게 맞는 난이도를 선택하세요</p>
+            <button class="difficulty-btn" onclick="startGame('초급')">초급</button>
+            <button class="difficulty-btn" onclick="startGame('중급')">중급</button>
+            <button class="difficulty-btn" onclick="startGame('고급')">고급</button>
+        </div>
+        
+        <div class="game-area" id="game-area">
+            <div class="score-info">
+                <div>진행률: <span id="progress">0</span>%</div>
+                <div class="timer">시간: <span id="time">60</span>초</div>
+            </div>
+            
+            <div class="text-display" id="text-display"></div>
+            
+            <textarea class="text-input" id="text-input" placeholder="위 텍스트를 여기에 입력하세요..." spellcheck="false"></textarea>
+            
+            <div class="buttons">
+                <button class="btn" id="restart-btn">다시 시작</button>
+            </div>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <div class="result-title">타이핑 결과</div>
+            
+            <div class="result-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="wpm">0</div>
+                    <div class="stat-label">WPM (분당 단어 수)</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">0</div>
+                    <div class="stat-label">정확도 (%)</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="time-taken">0</div>
+                    <div class="stat-label">소요 시간 (초)</div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn" id="retry-btn">다시 시도</button>
+                <button class="btn" onclick="window.location.href='index.html'">메인 메뉴로</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 교육용 웹 게임 모음. 모든 연령대를 위한 학습 게임입니다.</p>
+    </footer>
+
+    <script>
+        // 요소 선택
+        const difficultyContainer = document.getElementById('difficulty-container');
+        const gameArea = document.getElementById('game-area');
+        const resultContainer = document.getElementById('result-container');
+        const textDisplay = document.getElementById('text-display');
+        const textInput = document.getElementById('text-input');
+        const progressElement = document.getElementById('progress');
+        const timeElement = document.getElementById('time');
+        const wpmElement = document.getElementById('wpm');
+        const accuracyElement = document.getElementById('accuracy');
+        const timeTakenElement = document.getElementById('time-taken');
+        const restartBtn = document.getElementById('restart-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        
+        // 게임 변수
+        let timer;
+        let timeLeft = 60;
+        let startTime;
+        let endTime;
+        let currentText = '';
+        let errors = 0;
+        let totalTyped = 0;
+        let isGameActive = false;
+        let currentDifficulty = '';
+        let inputHandler; // 이벤트 핸들러 참조를 저장하기 위한 변수
+        
+        // 난이도별 텍스트
+        const texts = {
+            '초급': [
+                "나는 학교에 갑니다. 오늘은 날씨가 좋습니다. 친구들과 점심을 먹을 것입니다.",
+                "사과는 빨간색입니다. 바나나는 노란색입니다. 포도는 보라색입니다. 과일은 맛있습니다.",
+                "우리 가족은 공원에 갔습니다. 아이들은 놀이터에서 놀았습니다. 저녁에는 집에서 영화를 봤습니다.",
+                "책 읽기는 좋은 습관입니다. 매일 30분씩 책을 읽으면 지식이 늘어납니다.",
+                "주말에는 친구들과 만나서 게임을 합니다. 컴퓨터 게임과 보드 게임을 좋아합니다."
+            ],
+            '중급': [
+                "코딩은 논리적 사고를 기를 수 있는 좋은 활동입니다. 프로그래밍 언어에는 다양한 종류가 있으며, 각각 특징과 용도가 다릅니다. 자바스크립트는 웹 개발에 많이 사용됩니다.",
+                "건강한 생활을 위해서는 균형 잡힌 식단과 규칙적인 운동이 중요합니다. 하루에 적어도 30분 이상 걷는 것이 좋으며, 충분한 수분 섭취도 필수적입니다.",
+                "지구 온난화는 현대 사회의 심각한 환경 문제 중 하나입니다. 이산화탄소와 같은 온실가스 배출을 줄이고, 재생 에너지 사용을 늘려야 합니다.",
+                "독서는 지식을 넓히고 상상력을 기르는 데 도움이 됩니다. 다양한 장르의 책을 읽으면 세상을 보는 시각이 넓어지고 어휘력도 향상됩니다.",
+                "여행은 새로운 문화와 환경을 경험할 수 있는 좋은 기회입니다. 여행 계획을 세울 때는 목적지의 날씨와 문화적 특징을 미리 조사하는 것이 중요합니다."
+            ],
+            '고급': [
+                "인공지능 기술의 발전은 다양한 산업 분야에 혁명적인 변화를 가져오고 있습니다. 머신러닝과 딥러닝 알고리즘의 향상으로 이미지 인식, 자연어 처리, 예측 분석 등의 기능이 크게 발전했으며, 자율주행 자동차부터 개인화된 추천 시스템까지 다양한 응용이 가능해졌습니다.",
+                "지속가능한 발전이란 미래 세대의 필요를 충족시킬 수 있는 능력을 저해하지 않으면서 현 세대의 필요를 충족시키는 발전을 의미합니다. 이는 환경 보전, 사회적 형평성, 경제적 성장이라는 세 가지 측면을 균형 있게 고려하는 접근 방식으로, 장기적으로 모든 생명체가 조화롭게 공존할 수 있는 환경을 만드는 것을 목표로 합니다.",
+                "현대 사회에서 비판적 사고 능력은 그 어느 때보다 중요해졌습니다. 무수한 정보가 넘쳐나는 디지털 시대에 정보의 신뢰성을 평가하고, 논리적 오류를 식별하며, 다양한 관점에서 문제를 바라볼 수 있는 능력은 필수적입니다. 학교 교육에서부터 이러한 능력을 기를 수 있는 프로그램을 강화해야 할 필요성이 대두되고 있습니다.",
+                "문화적 다양성은 한 사회의 강점이 될 수 있습니다. 다양한 배경을 가진 사람들이 서로의 관점과 경험을 공유함으로써 창의적인 문제 해결 방안을 도출하고, 포용적인 사회를 구축할 수 있습니다. 이를 위해 다문화 교육과 문화 간 대화를 촉진하는 정책적 노력이 중요합니다.",
+                "디지털 리터러시는 디지털 기술을 효과적으로 이해하고 사용할 수 있는 능력을 의미합니다. 정보를 비판적으로 평가하고, 온라인 안전을 유지하며, 디지털 도구를 창의적으로 활용할 수 있는 능력은 현대 사회에서 성공적인 삶을 영위하는 데 필수적입니다. 모든 연령층에게 디지털 리터러시 교육의 기회를 제공하는 것이 중요합니다."
+            ]
+        };
+        
+        // 타이핑 검사 핸들러 함수 정의
+        function checkTyping() {
+            if (!isGameActive) return;
+            
+            const inputText = textInput.value;
+            const originalText = currentText.substring(0, inputText.length);
+            
+            // 진행률 계산
+            const progress = Math.floor((inputText.length / currentText.length) * 100);
+            progressElement.textContent = progress;
+            
+            // 오타 체크
+            let formattedText = '';
+            let errorCount = 0;
+            
+            for (let i = 0; i < inputText.length; i++) {
+                if (i >= currentText.length) {
+                    errorCount++;
+                    break;
+                }
+                
+                if (inputText[i] === currentText[i]) {
+                    formattedText += `<span class="completed">${currentText[i]}</span>`;
+                } else {
+                    formattedText += `<span class="error">${currentText[i]}</span>`;
+                    errorCount++;
+                }
+            }
+            
+            // 남은 텍스트
+            if (inputText.length < currentText.length) {
+                if (inputText.length < currentText.length - 1) {
+                    formattedText += `<span class="highlight">${currentText[inputText.length]}</span>`;
+                    formattedText += currentText.substring(inputText.length + 1);
+                } else {
+                    formattedText += currentText[inputText.length];
+                }
+            }
+            
+            textDisplay.innerHTML = formattedText;
+            
+            // 오류 업데이트
+            errors = errorCount;
+            totalTyped = inputText.length;
+            
+            // 완료 확인 - 정확히 같은지와 길이가 같은지 모두 확인
+            if (inputText.length === currentText.length && errorCount === 0) {
+                endGame();
+            }
+        }
+        
+        // 게임 시작
+        function startGame(difficulty) {
+            // 모든 타이머 초기화를 먼저 실행
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            
+            // 이전 이벤트 리스너 제거
+            if (inputHandler) {
+                textInput.removeEventListener('input', inputHandler);
+            }
+            
+            currentDifficulty = difficulty;
+            
+            // 랜덤 텍스트 선택
+            const textArray = texts[difficulty];
+            currentText = textArray[Math.floor(Math.random() * textArray.length)];
+            
+            // 텍스트 표시
+            textDisplay.innerHTML = currentText;
+            
+            // 초기화
+            textInput.value = '';
+            progressElement.textContent = '0';
+            timeLeft = 60;
+            timeElement.textContent = timeLeft;
+            errors = 0;
+            totalTyped = 0;
+            
+            // UI 전환
+            difficultyContainer.style.display = 'none';
+            gameArea.style.display = 'block';
+            resultContainer.style.display = 'none';
+            
+            // 타이머 시작
+            startTime = new Date();
+            timer = setInterval(() => {
+                timeLeft--;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            // 게임 활성화
+            isGameActive = true;
+            
+            // 입력 필드에 포커스
+            textInput.focus();
+            
+            // 이벤트 리스너 설정 - 참조 저장
+            inputHandler = checkTyping;
+            textInput.addEventListener('input', inputHandler);
+        }
+        
+        // 게임 종료
+        function endGame() {
+            if (!isGameActive) return; // 이미 종료된 경우 중복 실행 방지
+            
+            clearInterval(timer);
+            timer = null;
+            isGameActive = false;
+            endTime = new Date();
+            
+            // 이벤트 리스너 제거
+            if (inputHandler) {
+                textInput.removeEventListener('input', inputHandler);
+                inputHandler = null;
+            }
+            
+            // 결과 계산
+            const timeTaken = Math.max(1, Math.round((endTime - startTime) / 1000)); // 최소 1초로 설정
+            const minutes = timeTaken / 60;
+            const wordsCount = currentText.split(' ').length;
+            const wpm = Math.round(wordsCount / minutes);
+            const accuracy = totalTyped > 0 ? Math.round(((totalTyped - errors) / totalTyped) * 100) : 0;
+            
+            // 결과 업데이트
+            wpmElement.textContent = wpm;
+            accuracyElement.textContent = accuracy;
+            timeTakenElement.textContent = timeTaken;
+            
+            // UI 전환
+            gameArea.style.display = 'none';
+            resultContainer.style.display = 'block';
+        }
+        
+        // 재시작 버튼
+        restartBtn.addEventListener('click', () => {
+            startGame(currentDifficulty);
+        });
+        
+        // 다시 시도 버튼
+        retryBtn.addEventListener('click', () => {
+            difficultyContainer.style.display = 'block';
+            resultContainer.style.display = 'none';
+        });
+    </script>
+</body>
+</html> 
