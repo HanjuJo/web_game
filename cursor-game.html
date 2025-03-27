@@ -251,6 +251,29 @@
         <div class="rewards-text">새로운 보상이 해금되었습니다!</div>
     </div>
 
+    <footer>
+        <p>© 2023 교육용 웹 게임 모음. 모든 연령대를 위한 학습 게임입니다.</p>
+    </footer>
+    
+    <!-- Firebase 스크립트 추가 -->
+    <script type="module">
+        // Firebase 구성 파일 가져오기
+        import { auth, currentUser, saveUserDataToCloud, loadUserDataFromCloud } from './firebase-config.js';
+        
+        // 로그인 상태 변경 시 동기화
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log('사용자 로그인됨:', user.uid);
+                
+                // 로그인된 경우 최고 점수 가져오기
+                const bestScore = await window.gameRewards.getBestScore('ai-cursor');
+                if (bestScoreElement) {
+                    bestScoreElement.textContent = bestScore;
+                }
+            }
+        });
+    </script>
+    
     <script>
         const gameContainer = document.getElementById('game-container');
         const scoreElement = document.getElementById('score');
@@ -321,15 +344,6 @@
         let currentDistraction = null;
         let distractionTimer = null;
         let gameTimer = null;
-        
-        // 페이지 로드 시 최고 점수 가져오기
-        document.addEventListener('DOMContentLoaded', () => {
-            // 보상 시스템이 있는지 확인
-            if (window.gameRewards) {
-                bestScore = window.gameRewards.getBestScore('ai-cursor');
-                bestScoreElement.textContent = bestScore;
-            }
-        });
         
         // 난이도 선택 및 게임 시작
         function startGame(selectedDifficulty) {

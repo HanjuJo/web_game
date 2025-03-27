@@ -311,6 +311,25 @@
         <p>© 2023 교육용 웹 게임 모음. 모든 연령대를 위한 학습 게임입니다.</p>
     </footer>
 
+    <!-- Firebase 스크립트 추가 -->
+    <script type="module">
+        // Firebase 구성 파일 가져오기
+        import { auth, currentUser, saveUserDataToCloud, loadUserDataFromCloud } from './firebase-config.js';
+        
+        // 로그인 상태 변경 시 동기화
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log('사용자 로그인됨:', user.uid);
+                
+                // 로그인된 경우 최고 점수 가져오기
+                const bestScore = await window.gameRewards.getBestScore('typing');
+                if (bestScoreElement) {
+                    bestScoreElement.textContent = bestScore;
+                }
+            }
+        });
+    </script>
+    
     <script>
         // 요소 선택
         const difficultyContainer = document.getElementById('difficulty-container');
