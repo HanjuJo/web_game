@@ -26,6 +26,7 @@
             padding: 40px 0;
             text-align: center;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         
         h1 {
@@ -143,6 +144,27 @@
             margin-top: 50px;
         }
         
+        .rewards-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #fcc419;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .rewards-btn:hover {
+            background-color: #fab005;
+        }
+        
         @media (max-width: 768px) {
             .games-container {
                 grid-template-columns: 1fr;
@@ -160,6 +182,13 @@
             .game-description {
                 font-size: 0.95rem;
             }
+            
+            .rewards-btn {
+                top: auto;
+                bottom: 20px;
+                right: 50%;
+                transform: translateX(50%);
+            }
         }
     </style>
 </head>
@@ -168,6 +197,9 @@
         <div class="container">
             <h1>교육용 웹 게임 모음</h1>
             <div class="subtitle">학습도 재미있게! 난이도별 게임으로 즐겁게 학습해보세요</div>
+            <a href="rewards.html" class="rewards-btn">
+                <span>🏆</span> 나의 보상
+            </a>
         </div>
     </header>
     

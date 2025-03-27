@@ -141,6 +141,60 @@
             background-color: #339af0;
         }
         
+        /* 보상 알림 */
+        .rewards-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #fcc419;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            z-index: 300;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        .rewards-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .best-score {
+            font-size: 16px;
+            color: #495057;
+            margin-top: 15px;
+        }
+        
+        .new-record {
+            color: #e67700;
+            font-weight: bold;
+        }
+        
         @media (max-width: 768px) {
             .target {
                 width: 50px;
@@ -186,8 +240,15 @@
     <div id="game-over">
         <h2>게임 종료!</h2>
         <p>최종 점수: <span id="final-score">0</span></p>
+        <div class="best-score">최고 기록: <span id="best-score">0</span>점</div>
         <button id="restart-button">다시 시작</button>
         <button onclick="window.location.href='index.html'">메인 메뉴로</button>
+        <button onclick="window.location.href='rewards.html'">보상 확인</button>
+    </div>
+    
+    <div class="rewards-notification" id="rewards-notification">
+        <div class="rewards-icon">🏆</div>
+        <div class="rewards-text">새로운 보상이 해금되었습니다!</div>
     </div>
 
     <script>
@@ -197,8 +258,10 @@
         const aiCursor = document.getElementById('ai-cursor');
         const gameOverScreen = document.getElementById('game-over');
         const finalScoreElement = document.getElementById('final-score');
+        const bestScoreElement = document.getElementById('best-score');
         const restartButton = document.getElementById('restart-button');
         const difficultySelect = document.getElementById('difficulty-select');
+        const rewardsNotification = document.getElementById('rewards-notification');
         
         let score = 0;
         let timeLeft = 60;
@@ -208,6 +271,7 @@
         let playerPosition = { x: 0, y: 0 };
         let aiPosition = { x: 0, y: 0 };
         let difficulty = null;
+        let bestScore = 0;
         
         // 난이도별 설정값
         const difficultySettings = {
@@ -257,6 +321,15 @@
         let currentDistraction = null;
         let distractionTimer = null;
         let gameTimer = null;
+        
+        // 페이지 로드 시 최고 점수 가져오기
+        document.addEventListener('DOMContentLoaded', () => {
+            // 보상 시스템이 있는지 확인
+            if (window.gameRewards) {
+                bestScore = window.gameRewards.getBestScore('ai-cursor');
+                bestScoreElement.textContent = bestScore;
+            }
+        });
         
         // 난이도 선택 및 게임 시작
         function startGame(selectedDifficulty) {
@@ -432,7 +505,40 @@
         function endGame() {
             gameActive = false;
             finalScoreElement.textContent = score;
+            
+            // 최고 점수 확인 및 업데이트
+            const isNewRecord = score > bestScore;
+            if (isNewRecord) {
+                bestScore = score;
+                bestScoreElement.textContent = bestScore;
+                bestScoreElement.classList.add('new-record');
+            } else {
+                bestScoreElement.classList.remove('new-record');
+                bestScoreElement.textContent = bestScore;
+            }
+            
+            // 보상 시스템에 점수 업데이트
+            if (window.gameRewards) {
+                const newRewards = window.gameRewards.updateScore('ai-cursor', score);
+                if (newRewards) {
+                    showRewardsNotification();
+                }
+            }
+            
             gameOverScreen.style.display = 'block';
+        }
+        
+        // 보상 알림 표시
+        function showRewardsNotification() {
+            rewardsNotification.style.display = 'flex';
+            rewardsNotification.style.animation = 'slideIn 0.5s forwards';
+            
+            setTimeout(() => {
+                rewardsNotification.style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => {
+                    rewardsNotification.style.display = 'none';
+                }, 500);
+            }, 3000);
         }
         
         // 다시 시작 버튼

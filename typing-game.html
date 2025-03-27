@@ -115,18 +115,33 @@
         
         .text-input {
             width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 5px;
-            outline: none;
-            transition: border-color 0.2s;
-            resize: none;
             height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            resize: none;
+            margin-bottom: 20px;
         }
         
-        .text-input:focus {
-            border-color: #20c997;
+        .btn {
+            background-color: #20c997;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #12b886;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
         }
         
         .result-container {
@@ -164,44 +179,6 @@
             color: #6c757d;
         }
         
-        .buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .btn {
-            background-color: #20c997;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        .btn:hover {
-            background-color: #12b886;
-        }
-        
-        .stats-table {
-            margin-top: 20px;
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .stats-table th, .stats-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .stats-table th {
-            background-color: #f1f3f5;
-            font-weight: bold;
-        }
-        
         footer {
             background-color: #343a40;
             color: white;
@@ -210,11 +187,58 @@
             margin-top: 30px;
         }
         
-        @media (max-width: 768px) {
-            .result-stats {
-                flex-direction: column;
-                gap: 20px;
+        /* 보상 알림 */
+        .rewards-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #fcc419;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            z-index: 100;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        .rewards-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
             }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .best-score {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+        
+        .new-record {
+            color: #e67700;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -227,7 +251,7 @@
     <div class="container">
         <div class="difficulty-container" id="difficulty-container">
             <h2>난이도 선택</h2>
-            <p>나에게 맞는 난이도를 선택하세요</p>
+            <p>원하는 난이도를 선택하세요</p>
             <button class="difficulty-btn" onclick="startGame('초급')">초급</button>
             <button class="difficulty-btn" onclick="startGame('중급')">중급</button>
             <button class="difficulty-btn" onclick="startGame('고급')">고급</button>
@@ -268,11 +292,19 @@
                 </div>
             </div>
             
+            <div class="best-score">최고 기록: <span id="best-score">0</span> WPM</div>
+            
             <div class="buttons">
                 <button class="btn" id="retry-btn">다시 시도</button>
                 <button class="btn" onclick="window.location.href='index.html'">메인 메뉴로</button>
+                <button class="btn" onclick="window.location.href='rewards.html'">보상 확인</button>
             </div>
         </div>
+    </div>
+    
+    <div class="rewards-notification" id="rewards-notification">
+        <div class="rewards-icon">🏆</div>
+        <div class="rewards-text">새로운 보상이 해금되었습니다!</div>
     </div>
     
     <footer>
@@ -291,8 +323,10 @@
         const wpmElement = document.getElementById('wpm');
         const accuracyElement = document.getElementById('accuracy');
         const timeTakenElement = document.getElementById('time-taken');
+        const bestScoreElement = document.getElementById('best-score');
         const restartBtn = document.getElementById('restart-btn');
         const retryBtn = document.getElementById('retry-btn');
+        const rewardsNotification = document.getElementById('rewards-notification');
         
         // 게임 변수
         let timer;
@@ -305,6 +339,7 @@
         let isGameActive = false;
         let currentDifficulty = '';
         let inputHandler; // 이벤트 핸들러 참조를 저장하기 위한 변수
+        let bestWpm = 0;
         
         // 난이도별 텍스트
         const texts = {
@@ -330,6 +365,15 @@
                 "디지털 리터러시는 디지털 기술을 효과적으로 이해하고 사용할 수 있는 능력을 의미합니다. 정보를 비판적으로 평가하고, 온라인 안전을 유지하며, 디지털 도구를 창의적으로 활용할 수 있는 능력은 현대 사회에서 성공적인 삶을 영위하는 데 필수적입니다. 모든 연령층에게 디지털 리터러시 교육의 기회를 제공하는 것이 중요합니다."
             ]
         };
+        
+        // 페이지 로드 시 최고 점수 가져오기
+        document.addEventListener('DOMContentLoaded', () => {
+            // 보상 시스템이 있는지 확인
+            if (window.gameRewards) {
+                bestWpm = window.gameRewards.getBestScore('typing');
+                bestScoreElement.textContent = bestWpm;
+            }
+        });
         
         // 타이핑 검사 핸들러 함수 정의
         function checkTyping() {
@@ -466,9 +510,40 @@
             accuracyElement.textContent = accuracy;
             timeTakenElement.textContent = timeTaken;
             
+            // 최고 점수 확인 및 업데이트
+            const isNewRecord = wpm > bestWpm;
+            if (isNewRecord) {
+                bestWpm = wpm;
+                bestScoreElement.textContent = bestWpm;
+                bestScoreElement.classList.add('new-record');
+            } else {
+                bestScoreElement.classList.remove('new-record');
+            }
+            
+            // 보상 시스템에 점수 업데이트
+            if (window.gameRewards) {
+                const newRewards = window.gameRewards.updateScore('typing', wpm);
+                if (newRewards) {
+                    showRewardsNotification();
+                }
+            }
+            
             // UI 전환
             gameArea.style.display = 'none';
             resultContainer.style.display = 'block';
+        }
+        
+        // 보상 알림 표시
+        function showRewardsNotification() {
+            rewardsNotification.style.display = 'flex';
+            rewardsNotification.style.animation = 'slideIn 0.5s forwards';
+            
+            setTimeout(() => {
+                rewardsNotification.style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => {
+                    rewardsNotification.style.display = 'none';
+                }, 500);
+            }, 3000);
         }
         
         // 재시작 버튼

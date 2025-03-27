@@ -214,6 +214,61 @@
             margin-top: 30px;
         }
         
+        /* 보상 알림 */
+        .rewards-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #fcc419;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            z-index: 100;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        .rewards-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .best-score {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .new-record {
+            color: #e67700;
+            font-weight: bold;
+        }
+        
         @media (max-width: 768px) {
             .card {
                 width: 70px;
@@ -292,11 +347,19 @@
                 </div>
             </div>
             
+            <div class="best-score">최고 기록: <span id="best-score">0</span>점</div>
+            
             <div class="buttons">
                 <button class="btn" id="play-again-btn">다시 플레이</button>
                 <button class="btn" onclick="window.location.href='index.html'">메인 메뉴로</button>
+                <button class="btn" onclick="window.location.href='rewards.html'">보상 확인</button>
             </div>
         </div>
+    </div>
+    
+    <div class="rewards-notification" id="rewards-notification">
+        <div class="rewards-icon">🏆</div>
+        <div class="rewards-text">새로운 보상이 해금되었습니다!</div>
     </div>
     
     <footer>
@@ -315,30 +378,11 @@
         const finalTimeElement = document.getElementById('final-time');
         const finalScoreElement = document.getElementById('final-score');
         const finalMovesElement = document.getElementById('final-moves');
+        const bestScoreElement = document.getElementById('best-score');
         const restartBtn = document.getElementById('restart-btn');
         const newGameBtn = document.getElementById('new-game-btn');
         const playAgainBtn = document.getElementById('play-again-btn');
-        
-        // 게임 변수
-        let cards = [];
-        let flippedCards = [];
-        let matchedPairs = 0;
-        let totalPairs = 0;
-        let moves = 0;
-        let score = 0;
-        let timer;
-        let time = 0;
-        let isGameActive = false;
-        let currentDifficulty = '4x4';
-        let currentTheme = 'emoji';
-        
-        // 테마별 이미지/이모지
-        const themes = {
-            emoji: ['😀', '😎', '🤣', '😍', '🤔', '👽', '👻', '👾', '🤖', '🎃', '👀', '🧠', '❤️', '🚀', '🌟', '🔥', '💯', '💎', '🏆', '✨', '🍀', '☘️', '🌈', '🍄', '🍓', '🍍', '🍒', '🍇', '🍉', '🍊', '🍋', '🍌', '🥝', '🍎'],
-            animals: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐮', '🐷', '🐸', '🐵', '🦄', '🐝', '🦋', '🐌', '🐞', '🦖', '🦕', '🐙', '🦑', '🦀', '🐠', '🐋', '🦈', '🦭', '🐘', '🦒', '🦓', '🦍', '🐅'],
-            fruits: ['🍓', '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🥑', '🫐', '🍏', '🍐', '🥔', '🌽', '🫑', '🫒', '🧄', '🧅', '🥦', '🥒', '🌶️', '🌰', '🫛', '🥝', '🍞', '🥐', '🥨', '🥯'],
-            transport: ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚚', '🚛', '🚜', '🚲', '🛵', '🏍️', '🛺', '🚔', '🚘', '🚖', '🚡', '🚠', '🚟', '🚃', '🚋', '🚞', '🚄', '🚅', '🚈', '🚂', '✈️', '🛩️', '🚁', '⛵', '🚤']
-        };
+        const rewardsNotification = document.getElementById('rewards-notification');
         
         // 난이도별 그리드 크기
         const gridSizes = {
@@ -347,25 +391,75 @@
             '8x6': { rows: 8, cols: 6 }
         };
         
-        // 난이도 버튼 이벤트 리스너
+        // 테마별 아이템
+        const themes = {
+            'emoji': ['😀', '😎', '🚀', '🎮', '🎧', '🎸', '🏆', '🍕', '🌈', '🎁', '🐱', '🦄', '🦊', '🐼', '🦁', '🐘', '🦋', '🐢', '🐬', '🦜', '🌞', '🌙', '⭐', '🍎'],
+            'animals': ['🐶', '🐱', '🐭', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐮', '🐷', '🐸', '🐙', '🐵', '🦄', '🦓', '🦒', '🦘', '🦬', '🐘', '🦣', '🦏', '🐪'],
+            'fruits': ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🥑', '🥦', '🥒', '🌽', '🥕', '🌶️', '🍄'],
+            'transport': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚', '🚛', '🚜', '🛵', '🏍️', '🚲', '🚂', '✈️', '🚀', '🚁', '⛵', '🚢', '🛸']
+        };
+        
+        // 게임 변수
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let totalPairs = 0;
+        let isGameActive = false;
+        let score = 0;
+        let moves = 0;
+        let time = 0;
+        let timer;
+        let currentDifficulty = '';
+        let currentTheme = 'emoji';
+        let bestScore = 0;
+        
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGame();
+            // 보상 시스템이 있는지 확인
+            if (window.gameRewards) {
+                bestScore = window.gameRewards.getBestScore('memory');
+                bestScoreElement.textContent = bestScore;
+            }
+        });
+        
+        // 난이도 버튼 이벤트 설정
         document.querySelectorAll('.difficulty-btn').forEach(button => {
             button.addEventListener('click', () => {
-                currentDifficulty = button.getAttribute('data-grid');
+                currentDifficulty = button.dataset.grid;
                 startGame();
             });
         });
         
-        // 테마 버튼 이벤트 리스너
+        // 테마 버튼 이벤트 설정
         document.querySelectorAll('.theme-btn').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelector('.theme-btn.active').classList.remove('active');
                 button.classList.add('active');
-                currentTheme = button.getAttribute('data-theme');
+                currentTheme = button.dataset.theme;
             });
         });
         
-        // 게임 시작
+        // 게임 초기화 함수
+        function initializeGame() {
+            // 기본 테마 설정
+            currentTheme = 'emoji';
+            document.querySelector('.theme-btn[data-theme="emoji"]').classList.add('active');
+            
+            // 버튼 이벤트 등록
+            restartBtn.addEventListener('click', restartGame);
+            newGameBtn.addEventListener('click', showDifficultySelect);
+            playAgainBtn.addEventListener('click', showDifficultySelect);
+        }
+        
+        // 게임 시작 함수
         function startGame() {
+            if (!currentDifficulty) {
+                alert('난이도를 선택해주세요.');
+                return;
+            }
+            
+            // 그리드 크기 설정
             const { rows, cols } = gridSizes[currentDifficulty];
             totalPairs = (rows * cols) / 2;
             totalPairsElement.textContent = totalPairs;
@@ -412,10 +506,10 @@
             isGameActive = true;
         }
         
-        // 카드 생성
+        // 카드 생성 함수
         function createCards(rows, cols) {
             const totalCards = rows * cols;
-            const themeItems = themes[currentTheme];
+            const themeItems = [...themes[currentTheme]]; // 원본 배열을 변경하지 않기 위해 복사
             
             // 필요한 고유 아이템 수 (총 카드 수의 절반)
             const neededItems = totalCards / 2;
@@ -423,6 +517,7 @@
             // 테마에서 필요한 수의 고유 아이템 선택
             let selectedItems = [];
             for (let i = 0; i < neededItems; i++) {
+                if (themeItems.length === 0) break;
                 const randomIndex = Math.floor(Math.random() * themeItems.length);
                 selectedItems.push(themeItems[randomIndex]);
                 // 중복 피하기
@@ -455,107 +550,142 @@
                 card.appendChild(cardBack);
                 
                 card.addEventListener('click', () => flipCard(card));
-                
                 gameBoard.appendChild(card);
                 cards.push(card);
             }
         }
         
-        // 카드 뒤집기
+        // 카드 뒤집기 함수
         function flipCard(card) {
             if (!isGameActive || flippedCards.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) {
                 return;
             }
             
+            // 카드 뒤집기
             card.classList.add('flipped');
             flippedCards.push(card);
             
+            // 두 카드가 뒤집혔으면 일치 여부 확인
             if (flippedCards.length === 2) {
                 moves++;
-                checkMatch();
+                checkForMatch();
             }
         }
         
-        // 일치 확인
-        function checkMatch() {
-            const [card1, card2] = flippedCards;
+        // 카드 일치 확인 함수
+        function checkForMatch() {
+            const card1 = flippedCards[0];
+            const card2 = flippedCards[1];
             
-            // 움직일 수 없게 잠시 비활성화
-            isGameActive = false;
-            
-            setTimeout(() => {
-                if (card1.dataset.value === card2.dataset.value) {
-                    // 일치하는 경우
-                    card1.classList.add('matched');
-                    card2.classList.add('matched');
+            // 값이 같은지 확인
+            if (card1.dataset.value === card2.dataset.value) {
+                // 일치!
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                
+                // 일치한 페어 카운트 증가
+                matchedPairs++;
+                matchesElement.textContent = matchedPairs;
+                
+                // 점수 계산 - 난이도에 따라 차등 부여
+                let baseScore = 0;
+                switch (currentDifficulty) {
+                    case '4x4': baseScore = 10; break;
+                    case '6x6': baseScore = 15; break;
+                    case '8x6': baseScore = 20; break;
+                }
+                
+                // 빨리 맞출수록 추가 점수
+                const timeBonus = Math.max(0, 30 - Math.floor(time / matchedPairs));
+                const moveBonus = Math.max(0, 5 - Math.floor(moves / matchedPairs));
+                
+                const pairScore = baseScore + timeBonus + moveBonus;
+                score += pairScore;
+                scoreElement.textContent = score;
+                
+                // 애니메이션 지연 후 다음 카드 선택 가능
+                setTimeout(() => {
+                    flippedCards = [];
                     
-                    matchedPairs++;
-                    matchesElement.textContent = matchedPairs;
-                    
-                    // 점수 계산 (빨리 찾을수록 더 많은 점수)
-                    const baseScore = 10;
-                    const timeBonus = Math.max(0, 20 - time / matchedPairs);
-                    const addedScore = Math.round(baseScore + timeBonus);
-                    
-                    score += addedScore;
-                    scoreElement.textContent = score;
-                    
-                    // 게임 완료 확인
+                    // 모든 쌍을 찾았는지 확인
                     if (matchedPairs === totalPairs) {
                         endGame();
                     }
-                } else {
-                    // 불일치하는 경우
+                }, 500);
+            } else {
+                // 불일치
+                setTimeout(() => {
                     card1.classList.remove('flipped');
                     card2.classList.remove('flipped');
-                }
-                
-                flippedCards = [];
-                isGameActive = true;
-            }, 1000);
+                    flippedCards = [];
+                }, 1000);
+            }
         }
         
-        // 게임 종료
+        // 게임 종료 함수
         function endGame() {
-            clearInterval(timer);
             isGameActive = false;
+            clearInterval(timer);
             
             // 결과 표시
             finalTimeElement.textContent = time;
             finalScoreElement.textContent = score;
             finalMovesElement.textContent = moves;
             
-            // 결과창 표시
+            // 최고 점수 확인 및 업데이트
+            const isNewRecord = score > bestScore;
+            if (isNewRecord) {
+                bestScore = score;
+                bestScoreElement.textContent = bestScore;
+                bestScoreElement.classList.add('new-record');
+            } else {
+                bestScoreElement.classList.remove('new-record');
+                bestScoreElement.textContent = bestScore;
+            }
+            
+            // 보상 시스템에 점수 업데이트
+            if (window.gameRewards) {
+                const newRewards = window.gameRewards.updateScore('memory', score);
+                if (newRewards) {
+                    showRewardsNotification();
+                }
+            }
+            
+            resultContainer.style.display = 'block';
+        }
+        
+        // 보상 알림 표시
+        function showRewardsNotification() {
+            rewardsNotification.style.display = 'flex';
+            rewardsNotification.style.animation = 'slideIn 0.5s forwards';
+            
             setTimeout(() => {
-                resultContainer.style.display = 'block';
-            }, 1000);
+                rewardsNotification.style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => {
+                    rewardsNotification.style.display = 'none';
+                }, 500);
+            }, 3000);
+        }
+        
+        // 게임 재시작 함수
+        function restartGame() {
+            startGame();
+        }
+        
+        // 난이도 선택 화면 표시 함수
+        function showDifficultySelect() {
+            difficultyContainer.style.display = 'block';
+            resultContainer.style.display = 'none';
         }
         
         // 배열 섞기 함수
         function shuffleArray(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
+            for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                [array[i], array[j]] = [array[j], array[i]];
             }
-            return newArray;
+            return array;
         }
-        
-        // 다시 시작 버튼
-        restartBtn.addEventListener('click', () => {
-            startGame();
-        });
-        
-        // 새 게임 버튼
-        newGameBtn.addEventListener('click', () => {
-            clearInterval(timer);
-            difficultyContainer.style.display = 'block';
-        });
-        
-        // 다시 플레이 버튼
-        playAgainBtn.addEventListener('click', () => {
-            startGame();
-        });
     </script>
 </body>
 </html> 
