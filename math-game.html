@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>암산 게임</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: #4dabf7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .game-area {
+            padding: 20px;
+        }
+        
+        .difficulty-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .difficulty-btn {
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        
+        .difficulty-btn:hover {
+            background-color: #339af0;
+        }
+        
+        .problem-container {
+            background-color: #f1f3f5;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 24px;
+            display: none;
+        }
+        
+        .answers-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .answer-btn {
+            background-color: #e7f5ff;
+            border: 2px solid #4dabf7;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .answer-btn:hover {
+            background-color: #d0ebff;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: none;
+        }
+        
+        .timer {
+            color: #fa5252;
+            font-weight: bold;
+        }
+        
+        .result-container {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .result-score {
+            font-size: 48px;
+            color: #4dabf7;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .feedback {
+            height: 30px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .correct {
+            color: #40c057;
+        }
+        
+        .incorrect {
+            color: #fa5252;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+            }
+            
+            .problem-container {
+                font-size: 20px;
+                padding: 20px;
+            }
+            
+            .answer-btn {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="home-btn" onclick="window.location.href='index.html'">홈</button>
+            <h1>암산 게임</h1>
+        </div>
+        
+        <div class="game-area">
+            <div class="difficulty-container" id="difficulty-select">
+                <h2>난이도 선택</h2>
+                <p>나에게 맞는 난이도를 선택하세요</p>
+                <button class="difficulty-btn" onclick="startGame('초등학생')">초등학생</button>
+                <button class="difficulty-btn" onclick="startGame('중학생')">중학생</button>
+                <button class="difficulty-btn" onclick="startGame('고등학생')">고등학생</button>
+                <button class="difficulty-btn" onclick="startGame('성인')">성인</button>
+            </div>
+            
+            <div class="score-container" id="score-container">
+                <div>점수: <span id="score">0</span></div>
+                <div class="timer">시간: <span id="time">60</span>초</div>
+            </div>
+            
+            <div class="problem-container" id="problem-container">
+                <div id="problem">문제가 여기에 표시됩니다</div>
+            </div>
+            
+            <div class="answers-container" id="answers-container">
+                <button class="answer-btn" id="answer1"></button>
+                <button class="answer-btn" id="answer2"></button>
+                <button class="answer-btn" id="answer3"></button>
+                <button class="answer-btn" id="answer4"></button>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="result-container" id="result-container">
+                <div class="result-title">게임 종료!</div>
+                <div class="result-score"><span id="final-score">0</span>점</div>
+                <div class="controls">
+                    <button class="control-btn" id="restart-button">다시 시작</button>
+                    <button class="control-btn" onclick="window.location.href='index.html'">메인 메뉴로</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 요소 선택
+        const difficultySelect = document.getElementById('difficulty-select');
+        const scoreContainer = document.getElementById('score-container');
+        const problemContainer = document.getElementById('problem-container');
+        const answersContainer = document.getElementById('answers-container');
+        const resultContainer = document.getElementById('result-container');
+        const problem = document.getElementById('problem');
+        const answer1 = document.getElementById('answer1');
+        const answer2 = document.getElementById('answer2');
+        const answer3 = document.getElementById('answer3');
+        const answer4 = document.getElementById('answer4');
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+        const finalScoreElement = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        const feedbackElement = document.getElementById('feedback');
+        
+        // 게임 변수
+        let score = 0;
+        let timeLeft = 60;
+        let difficulty = null;
+        let correctAnswer = null;
+        let gameTimer = null;
+        
+        // 난이도별 설정값
+        const difficultySettings = {
+            '초등학생': {
+                operations: ['+', '-'],
+                minNumber: 1,
+                maxNumber: 20,
+                gameTime: 90
+            },
+            '중학생': {
+                operations: ['+', '-', '*'],
+                minNumber: 1,
+                maxNumber: 50,
+                gameTime: 60
+            },
+            '고등학생': {
+                operations: ['+', '-', '*', '/'],
+                minNumber: 5,
+                maxNumber: 100,
+                gameTime: 45
+            },
+            '성인': {
+                operations: ['+', '-', '*', '/', '^'],
+                minNumber: 10,
+                maxNumber: 150,
+                gameTime: 30
+            }
+        };
+        
+        // 게임 시작
+        function startGame(selectedDifficulty) {
+            difficulty = selectedDifficulty;
+            const settings = difficultySettings[difficulty];
+            
+            // 화면 설정
+            difficultySelect.style.display = 'none';
+            scoreContainer.style.display = 'flex';
+            problemContainer.style.display = 'block';
+            answersContainer.style.display = 'grid';
+            resultContainer.style.display = 'none';
+            
+            // 게임 변수 초기화
+            score = 0;
+            timeLeft = settings.gameTime;
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            // 첫 문제 출제
+            generateProblem();
+            
+            // 타이머 시작
+            if (gameTimer) {
+                clearInterval(gameTimer);
+            }
+            
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // 문제 생성
+        function generateProblem() {
+            const settings = difficultySettings[difficulty];
+            
+            // 연산자 랜덤 선택
+            const operation = settings.operations[Math.floor(Math.random() * settings.operations.length)];
+            
+            let num1, num2, answer;
+            
+            switch (operation) {
+                case '+':
+                    num1 = getRandomNumber(settings.minNumber, settings.maxNumber);
+                    num2 = getRandomNumber(settings.minNumber, settings.maxNumber);
+                    answer = num1 + num2;
+                    problem.textContent = `${num1} + ${num2} = ?`;
+                    break;
+                case '-':
+                    num1 = getRandomNumber(settings.minNumber, settings.maxNumber);
+                    num2 = getRandomNumber(settings.minNumber, num1); // num2는 num1보다 작거나 같게
+                    answer = num1 - num2;
+                    problem.textContent = `${num1} - ${num2} = ?`;
+                    break;
+                case '*':
+                    if (difficulty === '중학생') {
+                        num1 = getRandomNumber(2, 12);
+                        num2 = getRandomNumber(2, 12);
+                    } else {
+                        num1 = getRandomNumber(2, 20);
+                        num2 = getRandomNumber(2, 15);
+                    }
+                    answer = num1 * num2;
+                    problem.textContent = `${num1} × ${num2} = ?`;
+                    break;
+                case '/':
+                    // 깔끔한 나눗셈을 위해 먼저 num2를 정하고, num1 = num2 * 다른수 로 결정
+                    num2 = getRandomNumber(2, 12);
+                    const multiplier = getRandomNumber(2, 10);
+                    num1 = num2 * multiplier;
+                    answer = multiplier; // num1 / num2 = multiplier
+                    problem.textContent = `${num1} ÷ ${num2} = ?`;
+                    break;
+                case '^':
+                    // 제곱 연산 (간단한 제곱만)
+                    num1 = getRandomNumber(2, 10);
+                    num2 = 2; // 2제곱만 사용
+                    answer = Math.pow(num1, num2);
+                    problem.textContent = `${num1}² = ?`;
+                    break;
+            }
+            
+            correctAnswer = answer;
+            
+            // 보기 생성
+            generateAnswerOptions(answer);
+        }
+        
+        // 보기 생성
+        function generateAnswerOptions(correctAnswer) {
+            // 오답 생성
+            let options = [correctAnswer];
+            
+            while (options.length < 4) {
+                // 오답은 정답의 ±20% 범위에서 생성
+                const min = Math.max(1, Math.floor(correctAnswer * 0.8));
+                const max = Math.ceil(correctAnswer * 1.2);
+                const wrongAnswer = getRandomNumber(min, max);
+                
+                // 중복 방지
+                if (!options.includes(wrongAnswer)) {
+                    options.push(wrongAnswer);
+                }
+            }
+            
+            // 보기 섞기
+            shuffleArray(options);
+            
+            // 보기 표시
+            answer1.textContent = options[0];
+            answer2.textContent = options[1];
+            answer3.textContent = options[2];
+            answer4.textContent = options[3];
+            
+            // 클릭 이벤트 설정
+            const answerButtons = [answer1, answer2, answer3, answer4];
+            answerButtons.forEach(button => {
+                button.onclick = () => checkAnswer(parseInt(button.textContent));
+            });
+        }
+        
+        // 정답 확인
+        function checkAnswer(selectedAnswer) {
+            if (selectedAnswer === correctAnswer) {
+                score += 10;
+                scoreElement.textContent = score;
+                feedbackElement.textContent = '정답!';
+                feedbackElement.className = 'feedback correct';
+            } else {
+                feedbackElement.textContent = `오답! 정답은 ${correctAnswer}입니다.`;
+                feedbackElement.className = 'feedback incorrect';
+            }
+            
+            // 잠시 후 다음 문제
+            setTimeout(() => {
+                feedbackElement.textContent = '';
+                generateProblem();
+            }, 1500);
+        }
+        
+        // 게임 종료
+        function endGame() {
+            scoreContainer.style.display = 'none';
+            problemContainer.style.display = 'none';
+            answersContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+            
+            finalScoreElement.textContent = score;
+        }
+        
+        // 다시 시작 버튼
+        restartButton.addEventListener('click', () => {
+            difficultySelect.style.display = 'block';
+            resultContainer.style.display = 'none';
+        });
+        
+        // 유틸리티 함수
+        function getRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교육용 웹 게임 모음</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: #4dabf7;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .games-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+        
+        .game-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-header {
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .game-card:nth-child(1) .game-header {
+            background-color: #ff6b6b;
+        }
+        
+        .game-card:nth-child(2) .game-header {
+            background-color: #4dabf7;
+        }
+        
+        .game-card:nth-child(3) .game-header {
+            background-color: #74c0fc;
+        }
+        
+        .game-info {
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
+            color: #343a40;
+        }
+        
+        .game-description {
+            color: #495057;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .game-btn {
+            display: inline-block;
+            background-color: #4dabf7;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .game-btn:hover {
+            background-color: #339af0;
+        }
+        
+        .age-info {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .age-tag {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .games-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>교육용 웹 게임 모음</h1>
+            <div class="subtitle">학습도 재미있게! 난이도별 게임으로 즐겁게 학습해보세요</div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="games-container">
+            <div class="game-card">
+                <div class="game-header">
+                    <i class="game-icon">🎯</i>
+                </div>
+                <div class="game-info">
+                    <h2 class="game-title">AI 커서 추적 게임</h2>
+                    <div class="age-info">
+                        <span class="age-tag">초등학생</span>
+                        <span class="age-tag">중학생</span>
+                        <span class="age-tag">고등학생</span>
+                        <span class="age-tag">성인</span>
+                    </div>
+                    <p class="game-description">빨간색 타겟을 클릭하여 점수를 얻으세요. AI 커서가 여러분의 마우스를 따라다니며 방해합니다. 집중력과 반응 속도를 향상시킬 수 있는 게임입니다.</p>
+                    <a href="cursor-game.html" class="game-btn">게임 시작하기</a>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-header">
+                    <i class="game-icon">🔢</i>
+                </div>
+                <div class="game-info">
+                    <h2 class="game-title">암산 게임</h2>
+                    <div class="age-info">
+                        <span class="age-tag">초등학생</span>
+                        <span class="age-tag">중학생</span>
+                        <span class="age-tag">고등학생</span>
+                        <span class="age-tag">성인</span>
+                    </div>
+                    <p class="game-description">다양한 수학 문제를 빠르게 풀어보세요. 덧셈, 뺄셈부터 곱셈, 나눗셈, 제곱까지 난이도별로 다양한 문제가 출제됩니다. 암산 능력을 향상시킬 수 있습니다.</p>
+                    <a href="math-game.html" class="game-btn">게임 시작하기</a>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-header">
+                    <i class="game-icon">📝</i>
+                </div>
+                <div class="game-info">
+                    <h2 class="game-title">단어 게임</h2>
+                    <div class="age-info">
+                        <span class="age-tag">초등학생</span>
+                        <span class="age-tag">중학생</span>
+                        <span class="age-tag">고등학생</span>
+                        <span class="age-tag">성인</span>
+                    </div>
+                    <p class="game-description">힌트를 보고 가려진 단어를 맞춰보세요. 난이도별로 다양한 단어가 출제되며, 어휘력과 맥락 이해 능력을 향상시킬 수 있습니다.</p>
+                    <a href="word-game.html" class="game-btn">게임 시작하기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2023 교육용 웹 게임 모음. 모든 연령대를 위한 학습 게임입니다.</p>
+        </div>
+    </footer>
+</body>
+</html> 

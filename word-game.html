@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>단어 게임</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: #74c0fc;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .game-area {
+            padding: 20px;
+        }
+        
+        .difficulty-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .difficulty-btn {
+            background-color: #74c0fc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        
+        .difficulty-btn:hover {
+            background-color: #4dabf7;
+        }
+        
+        .word-display {
+            background-color: #f1f3f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 28px;
+            letter-spacing: 4px;
+            display: none;
+        }
+        
+        .hint-container {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 16px;
+            font-style: italic;
+            color: #495057;
+            display: none;
+        }
+        
+        .input-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .word-input {
+            width: 70%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #74c0fc;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+        
+        .submit-btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #74c0fc;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        
+        .submit-btn:hover {
+            background-color: #4dabf7;
+        }
+        
+        .feedback {
+            height: 30px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .correct {
+            color: #40c057;
+        }
+        
+        .incorrect {
+            color: #fa5252;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: none;
+        }
+        
+        .timer {
+            color: #fa5252;
+            font-weight: bold;
+        }
+        
+        .result-container {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .result-score {
+            font-size: 48px;
+            color: #74c0fc;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            background-color: #74c0fc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .skip-btn {
+            background-color: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+            }
+            
+            .word-display {
+                font-size: 24px;
+                letter-spacing: 2px;
+            }
+            
+            .word-input {
+                width: 60%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="home-btn" onclick="window.location.href='index.html'">홈</button>
+            <h1>단어 게임</h1>
+        </div>
+        
+        <div class="game-area">
+            <div class="difficulty-container" id="difficulty-select">
+                <h2>난이도 선택</h2>
+                <p>나에게 맞는 난이도를 선택하세요</p>
+                <button class="difficulty-btn" onclick="startGame('초등학생')">초등학생</button>
+                <button class="difficulty-btn" onclick="startGame('중학생')">중학생</button>
+                <button class="difficulty-btn" onclick="startGame('고등학생')">고등학생</button>
+                <button class="difficulty-btn" onclick="startGame('성인')">성인</button>
+            </div>
+            
+            <div class="score-container" id="score-container">
+                <div>점수: <span id="score">0</span></div>
+                <div class="timer">시간: <span id="time">60</span>초</div>
+            </div>
+            
+            <div class="word-display" id="word-display"></div>
+            
+            <div class="hint-container" id="hint-container">
+                <span id="hint">힌트가 여기에 표시됩니다</span>
+            </div>
+            
+            <div class="input-container" id="input-container">
+                <input type="text" class="word-input" id="word-input" placeholder="단어를 입력하세요">
+                <button class="submit-btn" id="submit-btn">확인</button>
+            </div>
+            
+            <button class="skip-btn" id="skip-btn" style="display: none;">건너뛰기</button>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="result-container" id="result-container">
+                <div class="result-title">게임 종료!</div>
+                <div class="result-score"><span id="final-score">0</span>점</div>
+                <div class="controls">
+                    <button class="control-btn" id="restart-button">다시 시작</button>
+                    <button class="control-btn" onclick="window.location.href='index.html'">메인 메뉴로</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 요소 선택
+        const difficultySelect = document.getElementById('difficulty-select');
+        const scoreContainer = document.getElementById('score-container');
+        const wordDisplay = document.getElementById('word-display');
+        const hintContainer = document.getElementById('hint-container');
+        const hintElement = document.getElementById('hint');
+        const inputContainer = document.getElementById('input-container');
+        const wordInput = document.getElementById('word-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const skipBtn = document.getElementById('skip-btn');
+        const resultContainer = document.getElementById('result-container');
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+        const finalScoreElement = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        const feedbackElement = document.getElementById('feedback');
+        
+        // 게임 변수
+        let score = 0;
+        let timeLeft = 60;
+        let difficulty = null;
+        let currentWord = null;
+        let currentHint = null;
+        let gameTimer = null;
+        
+        // 난이도별 단어 데이터
+        const wordData = {
+            '초등학생': [
+                { word: '사과', hint: '빨간색 과일입니다' },
+                { word: '학교', hint: '공부하는 장소입니다' },
+                { word: '연필', hint: '글씨를 쓰는 도구입니다' },
+                { word: '바나나', hint: '노란색 과일입니다' },
+                { word: '친구', hint: '함께 놀고 이야기하는 사람입니다' },
+                { word: '책상', hint: '공부할 때 앉는 가구입니다' },
+                { word: '선생님', hint: '학교에서 가르치는 사람입니다' },
+                { word: '가방', hint: '물건을 넣어 들고 다니는 것입니다' },
+                { word: '의자', hint: '앉는 가구입니다' },
+                { word: '햇빛', hint: '태양에서 오는 빛입니다' }
+            ],
+            '중학생': [
+                { word: '과학자', hint: '실험과 연구를 하는 사람입니다' },
+                { word: '도서관', hint: '책을 많이 보관하는 장소입니다' },
+                { word: '지구온난화', hint: '평균 기온이 상승하는 현상입니다' },
+                { word: '축구경기', hint: '11명이 공을 차는 스포츠입니다' },
+                { word: '태양계', hint: '태양과 그 주위를 도는 천체들의 모임입니다' },
+                { word: '민주주의', hint: '국민이 주인인 정치 제도입니다' },
+                { word: '역사책', hint: '과거의 사건들을 기록한 책입니다' },
+                { word: '컴퓨터', hint: '정보를 처리하는 전자 기계입니다' },
+                { word: '문화재', hint: '보존 가치가 있는 문화적 유산입니다' },
+                { word: '독서토론', hint: '책을 읽고 의견을 나누는 활동입니다' }
+            ],
+            '고등학생': [
+                { word: '생물다양성', hint: '다양한 생명체가 존재하는 것을 의미합니다' },
+                { word: '민주시민의식', hint: '사회 구성원으로서 가져야 할 권리와 의무에 대한 인식입니다' },
+                { word: '국제정세', hint: '세계 각국의 정치적 상황입니다' },
+                { word: '창의적사고', hint: '새롭고 독창적인 생각을 하는 능력입니다' },
+                { word: '경제성장률', hint: '국가 경제 규모의 변화를 나타내는 지표입니다' },
+                { word: '인공지능', hint: '기계가 사람처럼 생각하고 학습하는 기술입니다' },
+                { word: '문학작품', hint: '시, 소설, 수필 등을 말합니다' },
+                { word: '화학반응', hint: '물질이 다른 물질로 변화하는 과정입니다' },
+                { word: '진로탐색', hint: '자신의 미래 직업을 찾아보는 활동입니다' },
+                { word: '사회참여', hint: '공동체의 일에 관심을 갖고 행동하는 것입니다' }
+            ],
+            '성인': [
+                { word: '지속가능발전', hint: '미래 세대의 필요를 훼손하지 않으면서 현재 세대의 필요를 충족하는 발전입니다' },
+                { word: '세계화전략', hint: '국제적 범위로 사업을 확장하는 계획입니다' },
+                { word: '인공신경망', hint: '뇌의 신경 구조를 모방한 컴퓨터 시스템입니다' },
+                { word: '문화다양성', hint: '다양한 문화가 공존하며 상호작용하는 상태입니다' },
+                { word: '정보보안체계', hint: '데이터와 정보를 보호하기 위한 시스템입니다' },
+                { word: '사회적기업', hint: '사회 문제 해결을 목적으로 하는 기업 형태입니다' },
+                { word: '지식재산권', hint: '창작물이나 발명에 대한 권리를 보호하는 법적 권리입니다' },
+                { word: '심리분석연구', hint: '인간의 심리를 분석하고 연구하는 학문입니다' },
+                { word: '통합교육과정', hint: '여러 교과 내용을 통합하여 가르치는 교육 방식입니다' },
+                { word: '생태계보전', hint: '자연환경과 생태계를 보호하는 활동입니다' }
+            ]
+        };
+        
+        // 게임 시작
+        function startGame(selectedDifficulty) {
+            difficulty = selectedDifficulty;
+            
+            // 화면 설정
+            difficultySelect.style.display = 'none';
+            scoreContainer.style.display = 'flex';
+            wordDisplay.style.display = 'block';
+            hintContainer.style.display = 'block';
+            inputContainer.style.display = 'flex';
+            skipBtn.style.display = 'block';
+            resultContainer.style.display = 'none';
+            
+            // 게임 변수 초기화
+            score = 0;
+            timeLeft = (difficulty === '초등학생') ? 90 : 
+                       (difficulty === '중학생') ? 75 : 
+                       (difficulty === '고등학생') ? 60 : 45;
+            
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            // 첫 단어 설정
+            setNewWord();
+            
+            // 타이머 시작
+            if (gameTimer) {
+                clearInterval(gameTimer);
+            }
+            
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    endGame();
+                }
+            }, 1000);
+            
+            // 입력 필드 포커스
+            wordInput.focus();
+        }
+        
+        // 새로운 단어 설정
+        function setNewWord() {
+            // 현재 난이도에 맞는 단어 데이터에서 랜덤 선택
+            const words = wordData[difficulty];
+            const randomIndex = Math.floor(Math.random() * words.length);
+            currentWord = words[randomIndex].word;
+            currentHint = words[randomIndex].hint;
+            
+            // 단어 표시 (가려진 형태로)
+            displayHiddenWord();
+            
+            // 힌트 표시
+            hintElement.textContent = currentHint;
+            
+            // 입력 필드 초기화
+            wordInput.value = '';
+            wordInput.focus();
+        }
+        
+        // 가려진 단어 표시
+        function displayHiddenWord() {
+            let hiddenWord = '';
+            
+            // 초등학생은 첫 글자만 보여주기
+            if (difficulty === '초등학생') {
+                hiddenWord = currentWord[0] + '○'.repeat(currentWord.length - 1);
+            } 
+            // 중학생은 첫 글자와 마지막 글자 보여주기
+            else if (difficulty === '중학생' && currentWord.length > 2) {
+                hiddenWord = currentWord[0] + '○'.repeat(currentWord.length - 2) + currentWord[currentWord.length - 1];
+            }
+            // 고등학생과 성인은 30% 정도의 글자만 랜덤하게 보여주기
+            else {
+                const letters = currentWord.split('');
+                const numToShow = Math.max(1, Math.floor(letters.length * 0.3));
+                const indicesToShow = [];
+                
+                while (indicesToShow.length < numToShow) {
+                    const randomIndex = Math.floor(Math.random() * letters.length);
+                    if (!indicesToShow.includes(randomIndex)) {
+                        indicesToShow.push(randomIndex);
+                    }
+                }
+                
+                for (let i = 0; i < letters.length; i++) {
+                    if (indicesToShow.includes(i)) {
+                        hiddenWord += letters[i];
+                    } else {
+                        hiddenWord += '○';
+                    }
+                }
+            }
+            
+            wordDisplay.textContent = hiddenWord;
+        }
+        
+        // 정답 확인
+        function checkAnswer() {
+            const userAnswer = wordInput.value.trim();
+            
+            if (userAnswer === currentWord) {
+                // 정답
+                score += (difficulty === '초등학생') ? 5 : 
+                         (difficulty === '중학생') ? 10 : 
+                         (difficulty === '고등학생') ? 15 : 20;
+                
+                scoreElement.textContent = score;
+                feedbackElement.textContent = '정답입니다!';
+                feedbackElement.className = 'feedback correct';
+                
+                // 다음 단어
+                setTimeout(() => {
+                    feedbackElement.textContent = '';
+                    setNewWord();
+                }, 1500);
+            } else {
+                // 오답
+                feedbackElement.textContent = '오답입니다. 다시 시도하세요.';
+                feedbackElement.className = 'feedback incorrect';
+                wordInput.value = '';
+                wordInput.focus();
+            }
+        }
+        
+        // 건너뛰기
+        function skipWord() {
+            feedbackElement.textContent = `단어는 "${currentWord}"였습니다.`;
+            feedbackElement.className = 'feedback';
+            
+            // 다음 단어
+            setTimeout(() => {
+                feedbackElement.textContent = '';
+                setNewWord();
+            }, 1500);
+        }
+        
+        // 게임 종료
+        function endGame() {
+            scoreContainer.style.display = 'none';
+            wordDisplay.style.display = 'none';
+            hintContainer.style.display = 'none';
+            inputContainer.style.display = 'none';
+            skipBtn.style.display = 'none';
+            resultContainer.style.display = 'block';
+            
+            finalScoreElement.textContent = score;
+        }
+        
+        // 이벤트 리스너
+        submitBtn.addEventListener('click', checkAnswer);
+        wordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        
+        skipBtn.addEventListener('click', skipWord);
+        
+        restartButton.addEventListener('click', () => {
+            difficultySelect.style.display = 'block';
+            resultContainer.style.display = 'none';
+        });
+    </script>
+</body>
+</html> 
