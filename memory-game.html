@@ -2,8 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>기억력 카드 게임</title>
+    <link rel="stylesheet" href="mobile-styles.css">
     <style>
         body {
             margin: 0;
@@ -109,14 +110,14 @@
         }
         
         .card {
-            width: 100px;
-            height: 100px;
+            width: var(--card-size);
+            height: var(--card-size);
             background-color: #845ef7;
             border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: calc(var(--card-size) * 0.4);
             color: white;
             cursor: pointer;
             transform-style: preserve-3d;
@@ -228,6 +229,10 @@
                 flex-direction: column;
                 gap: 20px;
             }
+        }
+        
+        :root {
+            --card-size: 100px;
         }
     </style>
 </head>
@@ -369,6 +374,16 @@
             gameBoard.innerHTML = '';
             gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
             gameBoard.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            
+            // 모바일 환경에서 카드 크기 최적화
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                const cardSize = Math.min(60, (window.innerWidth - 40) / cols);
+                gameBoard.style.gap = '8px';
+                document.documentElement.style.setProperty('--card-size', cardSize + 'px');
+            } else {
+                document.documentElement.style.setProperty('--card-size', '100px');
+            }
             
             // 카드 생성
             createCards(rows, cols);

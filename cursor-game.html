@@ -2,8 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI 커서 추적 게임</title>
+    <link rel="stylesheet" href="mobile-styles.css">
     <style>
         body {
             margin: 0;
@@ -138,6 +139,30 @@
         
         button:hover {
             background-color: #339af0;
+        }
+        
+        @media (max-width: 768px) {
+            .target {
+                width: 50px;
+                height: 50px;
+            }
+            
+            #score-container, #timer {
+                font-size: 16px;
+                padding: 8px 15px;
+            }
+            
+            #home-btn {
+                font-size: 14px;
+                padding: 8px 15px;
+            }
+            
+            .difficulty-btn {
+                min-width: 80%;
+                margin: 8px auto;
+                padding: 15px;
+                display: block;
+            }
         }
     </style>
 </head>
@@ -283,58 +308,53 @@
         function createTarget() {
             if (!gameActive) return;
             
-            const settings = difficultySettings[difficulty];
+            const targetSize = difficultySettings[difficulty].targetSize;
             const target = document.createElement('div');
             target.className = 'target';
-            target.textContent = targetCounter;
+            target.style.width = targetSize + 'px';
+            target.style.height = targetSize + 'px';
+            target.innerText = targetCounter;
             
-            // 난이도에 따른 타겟 크기 조정
-            target.style.width = `${settings.targetSize}px`;
-            target.style.height = `${settings.targetSize}px`;
+            // 랜덤 위치 (화면 경계에서 약간 떨어진 곳)
+            const margin = targetSize;
+            const x = margin + Math.random() * (window.innerWidth - 2 * margin);
+            const y = margin + Math.random() * (window.innerHeight - 2 * margin);
             
-            // 랜덤 위치에 타겟 배치 (화면 가장자리는 피함)
-            const margin = 100;
-            const x = Math.random() * (window.innerWidth - 2 * margin) + margin;
-            const y = Math.random() * (window.innerHeight - 2 * margin) + margin;
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
             
-            target.style.left = `${x}px`;
-            target.style.top = `${y}px`;
-            
-            // 타겟 클릭 이벤트
-            target.addEventListener('click', () => {
-                if (!gameActive) return;
-                
-                score += settings.pointsPerTarget;
-                scoreElement.textContent = score;
-                target.remove();
-                
-                // 타겟 배열에서 제거
-                targets = targets.filter(t => t !== target);
-                
-                // AI가 타겟에 집중하고 있었다면 집중 해제
-                if (currentDistraction === target) {
-                    currentDistraction = null;
-                    clearTimeout(distractionTimer);
-                }
-                
-                targetCounter++;
-                createTarget();
-                
-                // 일정 점수마다 타겟 추가 (난이도 증가)
-                if (score % settings.targetAddScore === 0) {
-                    createTarget();
-                }
-            });
+            // 모바일에서 터치 이벤트 지원
+            target.addEventListener('click', () => targetClicked(target));
+            target.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                targetClicked(target);
+            }, { passive: false });
             
             gameContainer.appendChild(target);
             targets.push(target);
+            targetCounter++;
+            
+            // 일정 점수 간격으로 새 타겟 생성
+            if (score >= difficultySettings[difficulty].targetAddScore * (targetCounter - 2)) {
+                setTimeout(createTarget, 500);
+            }
         }
         
-        // 마우스 움직임 감지
+        // 마우스 이동 이벤트
         document.addEventListener('mousemove', (e) => {
             playerPosition.x = e.clientX;
             playerPosition.y = e.clientY;
         });
+        
+        // 터치 이벤트 지원 추가
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // 스크롤 방지
+            if (e.touches.length > 0) {
+                const touch = e.touches[0];
+                playerPosition.x = touch.clientX;
+                playerPosition.y = touch.clientY;
+            }
+        }, { passive: false });
         
         // AI 커서 움직임 업데이트
         function updateAiCursor() {
@@ -385,6 +405,27 @@
             aiCursor.style.top = `${aiPosition.y}px`;
             
             requestAnimationFrame(updateAiCursor);
+        }
+        
+        // 타겟 클릭 처리 함수
+        function targetClicked(target) {
+            if (!gameActive) return;
+            
+            const settings = difficultySettings[difficulty];
+            score += settings.pointsPerTarget;
+            scoreElement.textContent = score;
+            target.remove();
+            
+            // 타겟 배열에서 제거
+            targets = targets.filter(t => t !== target);
+            
+            // AI가 타겟에 집중하고 있었다면 집중 해제
+            if (currentDistraction === target) {
+                currentDistraction = null;
+                clearTimeout(distractionTimer);
+            }
+            
+            createTarget();
         }
         
         // 게임 종료

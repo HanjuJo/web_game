@@ -1,0 +1,177 @@
+/* 모바일 최적화 스타일 */
+:root {
+    --primary-color: #4dabf7;
+    --secondary-color: #339af0;
+    --accent-color-1: #ff6b6b;
+    --accent-color-2: #20c997;
+    --accent-color-3: #845ef7;
+    --light-bg: #f8f9fa;
+    --dark-text: #343a40;
+    --gray-text: #495057;
+    --light-gray: #e9ecef;
+    --dark-bg: #343a40;
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    --transition-speed: 0.3s;
+}
+
+/* 기본 모바일 최적화 */
+html {
+    touch-action: manipulation; /* 더블 탭 확대 비활성화 */
+    -webkit-text-size-adjust: 100%; /* iOS 텍스트 크기 자동 조정 방지 */
+}
+
+body {
+    overscroll-behavior: contain; /* 화면 바운스 효과 제한 */
+    -webkit-overflow-scrolling: touch; /* iOS에서 부드러운 스크롤 */
+}
+
+/* 입력 요소 최적화 */
+input, textarea, button, select {
+    font-size: 16px !important; /* iOS에서 자동 확대 방지 */
+    -webkit-appearance: none; /* iOS에서 기본 스타일 제거 */
+    border-radius: 0; /* iOS에서 기본 둥근 모서리 제거 */
+}
+
+button, .btn, .game-btn {
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+    padding: 12px 20px !important; /* 더 큰 터치 영역 */
+}
+
+/* 모바일에서 hover 대신 active 사용 */
+.game-card:active,
+.btn:active,
+.game-btn:active,
+.difficulty-btn:active {
+    transform: scale(0.98);
+}
+
+/* 게임별 모바일 최적화 */
+
+/* 1. AI 커서 추적 게임 */
+.target-area {
+    min-height: 300px; /* 충분한 터치 영역 */
+}
+
+.target {
+    min-width: 50px;
+    min-height: 50px; /* 터치하기 쉬운 크기 */
+}
+
+/* 2. 타이핑 마스터 */
+.text-input {
+    font-size: 18px !important; /* 모바일 키보드 입력 편의성 */
+    height: 120px !important; /* 더 큰 입력 영역 */
+}
+
+.text-display {
+    font-size: 18px !important; /* 읽기 쉬운 크기 */
+    line-height: 1.8 !important;
+}
+
+/* 3. 기억력 카드 게임 */
+@media (max-width: 768px) {
+    .card {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 28px !important;
+    }
+    
+    .game-board {
+        gap: 10px !important;
+        margin: 0 auto !important;
+        max-width: 100% !important;
+    }
+}
+
+/* 4. 암산 게임 */
+.math-problem {
+    font-size: 24px !important; /* 더 큰 글씨 */
+}
+
+.answer-input {
+    font-size: 20px !important;
+    padding: 12px !important;
+    width: 100% !important;
+    max-width: 200px !important;
+}
+
+/* 5. 단어 게임 */
+.word-container {
+    letter-spacing: 2px !important; /* 간격 확보 */
+}
+
+.letter-input {
+    min-width: 40px !important;
+    min-height: 44px !important;
+    font-size: 20px !important;
+}
+
+/* 공통 UI 조정 */
+@media (max-width: 768px) {
+    .container {
+        width: 95% !important;
+        padding: 10px !important;
+    }
+    
+    .header {
+        padding: 15px 5px !important;
+    }
+    
+    .difficulty-container, .game-area, .result-container {
+        padding: 15px !important;
+    }
+    
+    .difficulty-btn {
+        margin: 5px 2px !important;
+        padding: 10px 15px !important;
+        width: calc(50% - 10px) !important;
+        display: inline-block !important;
+    }
+    
+    .buttons {
+        flex-wrap: wrap !important;
+    }
+    
+    .result-stats {
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+    
+    /* 특수 터치 환경 최적화 */
+    .game-area {
+        touch-action: pan-y !important; /* 수직 스크롤만 허용 */
+    }
+    
+    .home-btn {
+        top: 10px !important;
+        left: 10px !important;
+    }
+    
+    h1 {
+        font-size: 1.8rem !important;
+        margin-left: 30px !important; /* 홈 버튼 공간 확보 */
+    }
+}
+
+/* iOS 키보드 표시시 조정 */
+@media (max-height: 600px) {
+    .container {
+        padding-bottom: 80px !important; /* 하단 여백 추가 */
+    }
+}
+
+/* 방향 전환 최적화 */
+@media (orientation: landscape) and (max-height: 500px) {
+    .header {
+        padding: 10px 5px !important;
+    }
+    
+    h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .game-area {
+        margin-top: 10px !important;
+    }
+} 
