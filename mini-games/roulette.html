@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>랜덤 룰렛 - 모두의 게임</title>
+    <link rel="stylesheet" href="../mobile-styles.css">
+    <link rel="stylesheet" href="../common-styles.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --text-color: #2d3436;
+            --light-color: #f7f7f7;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .input-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .item-row input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+        .item-row input[type="color"] {
+            width: 50px;
+            height: 34px;
+            padding: 0 2px;
+        }
+
+        .remove-btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .add-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .roulette-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .roulette-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+
+        #roulette-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 40px;
+            background-color: var(--accent-color);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            z-index: 2;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            flex: 1;
+            max-width: 150px;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .result-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            display: none;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .close-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .roulette-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-btn" onclick="window.location.href='../index.html'">홈</button>
+        <h1>랜덤 룰렛</h1>
+    </div>
+    
+    <div class="container">
+        <div class="input-section">
+            <h2>룰렛 설정</h2>
+            <div class="form-group">
+                <label for="roulette-title">룰렛 제목</label>
+                <input type="text" id="roulette-title" placeholder="예: 점심 메뉴 정하기" value="점심 메뉴 정하기">
+            </div>
+            
+            <div class="form-group">
+                <label for="item-count">항목 수</label>
+                <input type="number" id="item-count" min="2" max="12" value="6" onchange="updateItemInputs()">
+            </div>
+            
+            <div id="items-container">
+                <h3>항목 추가</h3>
+                <div class="item-row">
+                    <input type="text" placeholder="항목 1" value="한식">
+                    <input type="color" value="#ff9ff3">
+                    <button class="remove-btn" onclick="removeItem(this)">삭제</button>
+                </div>
+                <div class="item-row">
+                    <input type="text" placeholder="항목 2" value="중식">
+                    <input type="color" value="#feca57">
+                    <button class="remove-btn" onclick="removeItem(this)">삭제</button>
+                </div>
+                <div class="item-row">
+                    <input type="text" placeholder="항목 3" value="일식">
+                    <input type="color" value="#ff6b6b">
+                    <button class="remove-btn" onclick="removeItem(this)">삭제</button>
+                </div>
+                <div class="item-row">
+                    <input type="text" placeholder="항목 4" value="양식">
+                    <input type="color" value="#1dd1a1">
+                    <button class="remove-btn" onclick="removeItem(this)">삭제</button>
+                </div>
+                <div class="item-row">
+                    <input type="text" placeholder="항목 5" value="분식">
+                    <input type="color" value="#5f27cd">
+                    <button class="remove-btn" onclick="removeItem(this)">삭제</button>
+                </div>
+                <div class="item-row">
+                    <input type="text" placeholder="항목 6" value="패스트푸드">
+                    <input type="color" value="#54a0ff">
+                    <button class="remove-btn" onclick="removeItem(this)">삭제</button>
+                </div>
+            </div>
+            
+            <button class="add-btn" id="add-item-btn">+ 항목 추가</button>
+        </div>
+        
+        <div class="roulette-section">
+            <h2 id="display-title">점심 메뉴 정하기</h2>
+            
+            <div class="roulette-container">
+                <div class="pointer"></div>
+                <canvas id="roulette-canvas" width="300" height="300"></canvas>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" id="spin-btn">룰렛 돌리기</button>
+                <button class="btn btn-secondary" id="reset-btn">초기화</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="result-popup" id="result-popup">
+        <h2 class="result-title">선택된 항목</h2>
+        <div class="result-value" id="result-value">한식</div>
+        <button class="close-btn" id="close-btn">확인</button>
+    </div>
+
+    <script>
+        // 요소 참조
+        const canvas = document.getElementById('roulette-canvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spin-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const addItemBtn = document.getElementById('add-item-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const overlay = document.getElementById('overlay');
+        const resultPopup = document.getElementById('result-popup');
+        const resultValue = document.getElementById('result-value');
+        const displayTitle = document.getElementById('display-title');
+        const rouletteTitle = document.getElementById('roulette-title');
+        
+        // 룰렛 데이터 및 상태
+        let items = [];
+        let isSpinning = false;
+        let currentRotation = 0;
+        let targetRotation = 0;
+        let spinStartTime = 0;
+        let spinDuration = 0;
+        const minSpinDuration = 3000; // 최소 3초
+        const maxSpinDuration = 6000; // 최대 6초
+        
+        // 초기화
+        function init() {
+            // 이벤트 리스너 설정
+            spinBtn.addEventListener('click', spinRoulette);
+            resetBtn.addEventListener('click', resetRoulette);
+            addItemBtn.addEventListener('click', addItem);
+            closeBtn.addEventListener('click', closeResult);
+            rouletteTitle.addEventListener('input', updateTitle);
+            
+            // 항목 업데이트 및 룰렛 그리기
+            updateItemsFromInputs();
+            drawRoulette();
+        }
+        
+        // 제목 업데이트
+        function updateTitle() {
+            displayTitle.textContent = rouletteTitle.value;
+        }
+        
+        // 항목 입력 필드 업데이트
+        function updateItemInputs() {
+            const count = parseInt(document.getElementById('item-count').value);
+            const container = document.getElementById('items-container');
+            
+            // 현재 항목 저장
+            const currentItems = Array.from(container.querySelectorAll('.item-row')).map(row => {
+                const textInput = row.querySelector('input[type="text"]');
+                const colorInput = row.querySelector('input[type="color"]');
+                return {
+                    text: textInput ? textInput.value : '',
+                    color: colorInput ? colorInput.value : '#ff9ff3'
+                };
+            });
+            
+            // 새 항목 HTML 생성
+            let html = '<h3>항목 추가</h3>';
+            
+            const defaultColors = [
+                '#ff9ff3', '#feca57', '#ff6b6b', '#1dd1a1', 
+                '#5f27cd', '#54a0ff', '#00d2d3', '#ff9f43',
+                '#ee5253', '#01a3a4', '#341f97', '#2e86de'
+            ];
+            
+            for(let i = 0; i < count; i++) {
+                const item = currentItems[i] || { 
+                    text: `항목 ${i+1}`, 
+                    color: defaultColors[i % defaultColors.length] 
+                };
+                
+                html += `
+                <div class="item-row">
+                    <input type="text" placeholder="항목 ${i+1}" value="${item.text}">
+                    <input type="color" value="${item.color}">
+                    <button class="remove-btn" onclick="removeItem(this)">삭제</button>
+                </div>`;
+            }
+            
+            container.innerHTML = html;
+            
+            // 항목 업데이트 및 룰렛 다시 그리기
+            updateItemsFromInputs();
+            drawRoulette();
+        }
+        
+        // 항목 추가
+        function addItem() {
+            const count = parseInt(document.getElementById('item-count').value);
+            document.getElementById('item-count').value = count + 1;
+            updateItemInputs();
+        }
+        
+        // 항목 제거
+        function removeItem(btn) {
+            const rows = document.querySelectorAll('.item-row');
+            if(rows.length <= 2) {
+                alert('최소 2개의 항목이 필요합니다.');
+                return;
+            }
+            
+            btn.parentElement.remove();
+            const count = document.querySelectorAll('.item-row').length;
+            document.getElementById('item-count').value = count;
+            
+            // 항목 업데이트 및 룰렛 다시 그리기
+            updateItemsFromInputs();
+            drawRoulette();
+        }
+        
+        // 입력 필드에서 항목 업데이트
+        function updateItemsFromInputs() {
+            const rows = document.querySelectorAll('.item-row');
+            items = [];
+            
+            rows.forEach(row => {
+                const textInput = row.querySelector('input[type="text"]');
+                const colorInput = row.querySelector('input[type="color"]');
+                
+                if(textInput && colorInput) {
+                    items.push({
+                        text: textInput.value || `항목 ${items.length + 1}`,
+                        color: colorInput.value
+                    });
+                }
+            });
+        }
+        
+        // 룰렛 그리기
+        function drawRoulette() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 5;
+            
+            // 룰렛 배경
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#333';
+            ctx.stroke();
+            
+            // 항목이 없으면 리턴
+            if(items.length === 0) return;
+            
+            // 각 항목의 각도 계산
+            const sliceAngle = (Math.PI * 2) / items.length;
+            
+            // 룰렛 회전
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(currentRotation);
+            
+            // 각 슬라이스 그리기
+            for(let i = 0; i < items.length; i++) {
+                const startAngle = i * sliceAngle;
+                const endAngle = (i + 1) * sliceAngle;
+                
+                // 슬라이스 배경
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = items[i].color;
+                ctx.fill();
+                ctx.stroke();
+                
+                // 텍스트
+                ctx.save();
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#fff';
+                
+                // 텍스트 그림자
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 2;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                
+                // 텍스트가 너무 길면 자르기
+                let text = items[i].text;
+                if(text.length > 12) {
+                    text = text.substring(0, 10) + '...';
+                }
+                
+                ctx.fillText(text, radius - 15, 0);
+                ctx.restore();
+            }
+            
+            ctx.restore();
+            
+            // 중앙 원
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
+            ctx.fillStyle = '#333';
+            ctx.fill();
+            
+            // 중앙 원 안의 작은 흰색 원
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+        }
+        
+        // 룰렛 회전 시작
+        function spinRoulette() {
+            if(isSpinning) return;
+            
+            // 입력에서 항목 업데이트
+            updateItemsFromInputs();
+            
+            // 항목이 없으면 리턴
+            if(items.length < 2) {
+                alert('최소 2개의 항목이 필요합니다.');
+                return;
+            }
+            
+            isSpinning = true;
+            spinBtn.disabled = true;
+            
+            // 무작위 회전각 계산 (5-10 회전 + 무작위 위치)
+            const minRotations = 5;
+            const maxRotations = 10;
+            const randomRotations = minRotations + Math.random() * (maxRotations - minRotations);
+            
+            // 무작위 항목 선택
+            const selectedIndex = Math.floor(Math.random() * items.length);
+            const sliceAngle = (Math.PI * 2) / items.length;
+            
+            // 포인터는 항상 위에 있으므로, 선택된 항목이 포인터 아래에 오도록 계산
+            // 포인터가 가리키는 항목의 중앙이 오게 하려면 반대 방향 회전 + 해당 항목 중앙 각도
+            targetRotation = currentRotation + 
+                             (Math.PI * 2 * randomRotations) + 
+                             (Math.PI * 2 - (selectedIndex * sliceAngle + sliceAngle / 2));
+            
+            spinStartTime = Date.now();
+            spinDuration = minSpinDuration + Math.random() * (maxSpinDuration - minSpinDuration);
+            
+            // 애니메이션 시작
+            requestAnimationFrame(updateSpin);
+        }
+        
+        // 회전 업데이트 애니메이션
+        function updateSpin() {
+            const elapsed = Date.now() - spinStartTime;
+            const progress = Math.min(elapsed / spinDuration, 1);
+            
+            // 이징 함수 (천천히 감속)
+            const easeOut = function(t) {
+                return 1 - Math.pow(1 - t, 3);
+            };
+            
+            // 현재 회전 업데이트
+            currentRotation = currentRotation + (targetRotation - currentRotation) * easeOut(progress);
+            
+            // 룰렛 다시 그리기
+            drawRoulette();
+            
+            // 애니메이션 진행 중
+            if(progress < 1) {
+                requestAnimationFrame(updateSpin);
+            } else {
+                // 회전 종료
+                finishSpin();
+            }
+        }
+        
+        // 회전 종료
+        function finishSpin() {
+            isSpinning = false;
+            spinBtn.disabled = false;
+            
+            // 선택된 항목 계산
+            const sliceAngle = (Math.PI * 2) / items.length;
+            const normalizedRotation = currentRotation % (Math.PI * 2);
+            
+            // 포인터는 위쪽(270도 또는 3π/2)에 있으므로, 그 위치를 기준으로 계산
+            let pointerAngle = (Math.PI * 1.5) - normalizedRotation;
+            if(pointerAngle < 0) pointerAngle += Math.PI * 2;
+            
+            const selectedIndex = Math.floor(pointerAngle / sliceAngle) % items.length;
+            
+            // 결과 표시
+            showResult(items[selectedIndex].text);
+        }
+        
+        // 결과 표시
+        function showResult(result) {
+            resultValue.textContent = result;
+            overlay.style.display = 'block';
+            resultPopup.style.display = 'block';
+        }
+        
+        // 결과 팝업 닫기
+        function closeResult() {
+            overlay.style.display = 'none';
+            resultPopup.style.display = 'none';
+        }
+        
+        // 룰렛 초기화
+        function resetRoulette() {
+            currentRotation = 0;
+            targetRotation = 0;
+            isSpinning = false;
+            spinBtn.disabled = false;
+            drawRoulette();
+        }
+        
+        // 페이지 로드 시 초기화
+        window.onload = init;
+    </script>
+</body>
+</html> 

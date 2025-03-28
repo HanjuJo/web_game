@@ -3,297 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육용 웹 게임 모음</title>
+    <title>모두의 게임 - 함께 즐기는 웹 게임 모음</title>
     <link rel="stylesheet" href="mobile-styles.css">
+    <link rel="stylesheet" href="common-styles.css">
     <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --text-color: #2d3436;
+            --light-color: #f7f7f7;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f8f9fa;
-            color: #343a40;
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            line-height: 1.6;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        header {
-            background-color: #4dabf7;
+
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 40px 0;
+            padding: 30px 20px;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             position: relative;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 30px;
         }
-        
-        h1 {
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-title {
+            font-size: 2.4rem;
             margin: 0;
-            font-size: 2.5rem;
-            font-weight: 700;
+            letter-spacing: -0.5px;
         }
-        
-        .subtitle {
+
+        .main-subtitle {
+            font-size: 1.1rem;
             margin-top: 10px;
-            font-size: 1.2rem;
             opacity: 0.9;
         }
-        
-        .games-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 50px 0;
-        }
-        
-        .game-card {
-            background-color: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-        
-        .game-header {
-            height: 160px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .game-card:nth-child(1) .game-header {
-            background-color: #ff6b6b;
-        }
-        
-        .game-card:nth-child(2) .game-header {
-            background-color: #4dabf7;
-        }
-        
-        .game-card:nth-child(3) .game-header {
-            background-color: #74c0fc;
-        }
-        
-        .game-card:nth-child(4) .game-header {
-            background-color: #20c997;
-        }
-        
-        .game-card:nth-child(5) .game-header {
-            background-color: #845ef7;
-        }
-        
-        .game-info {
-            padding: 20px;
-        }
-        
-        .game-title {
-            font-size: 1.5rem;
-            margin: 0 0 10px 0;
-            color: #343a40;
-        }
-        
-        .game-description {
-            color: #495057;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        
-        .game-btn {
-            display: inline-block;
-            background-color: #4dabf7;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-        
-        .game-btn:hover {
-            background-color: #339af0;
-        }
-        
-        .age-info {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .age-tag {
-            background-color: #e9ecef;
-            color: #495057;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-        
-        footer {
-            background-color: #343a40;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            margin-top: 50px;
-        }
-        
+
         .rewards-btn {
             position: absolute;
             top: 20px;
             right: 20px;
-            background-color: #fcc419;
+            background-color: rgba(255, 255, 255, 0.2);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s;
         }
-        
+
         .rewards-btn:hover {
-            background-color: #fab005;
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
-        
+
+        .category-section {
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 15px;
+            color: var(--primary-color);
+        }
+
+        .category-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            height: 20px;
+            width: 5px;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .category-description {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .games-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .game-header {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(0deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 50%);
+        }
+
+        .age-tags {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .age-tag {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: var(--text-color);
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 50px;
+        }
+
+        .game-content {
+            padding: 20px;
+        }
+
+        .game-title {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .game-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 4.3em;
+        }
+
+        .game-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .game-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background-color: #2d3436;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 50px;
+        }
+
+        .footer p {
+            margin: 10px 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
         @media (max-width: 768px) {
+            .main-title {
+                font-size: 1.8rem;
+            }
+            
+            .main-subtitle {
+                font-size: 1rem;
+            }
+            
             .games-container {
                 grid-template-columns: 1fr;
-                gap: 20px;
             }
             
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .age-info {
-                flex-wrap: wrap;
-            }
-            
-            .game-description {
-                font-size: 0.95rem;
+            .category-section {
+                padding: 15px;
             }
             
             .rewards-btn {
-                top: auto;
-                bottom: 20px;
-                right: 50%;
-                transform: translateX(50%);
+                font-size: 0.8rem;
+                padding: 6px 12px;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>교육용 웹 게임 모음</h1>
-            <div class="subtitle">학습도 재미있게! 난이도별 게임으로 즐겁게 학습해보세요</div>
-            <a href="rewards.html" class="rewards-btn">
-                <span>🏆</span> 나의 보상
-            </a>
+    <header class="main-header">
+        <div class="header-content">
+            <h1 class="main-title">모두의 게임</h1>
+            <p class="main-subtitle">두뇌훈련부터 내기게임까지, 모두 함께 즐겨요!</p>
+            <button class="rewards-btn" onclick="window.location.href='rewards.html'">🏆 나의 보상</button>
         </div>
     </header>
-    
-    <div class="container">
-        <div class="games-container">
-            <div class="game-card">
-                <div class="game-header">
-                    <i class="game-icon">🎯</i>
-                </div>
-                <div class="game-info">
-                    <h2 class="game-title">AI 커서 추적 게임</h2>
-                    <div class="age-info">
-                        <span class="age-tag">초등학생</span>
-                        <span class="age-tag">중학생</span>
-                        <span class="age-tag">고등학생</span>
-                        <span class="age-tag">성인</span>
-                    </div>
-                    <p class="game-description">빨간색 타겟을 클릭하여 점수를 얻으세요. AI 커서가 여러분의 마우스를 따라다니며 방해합니다. 집중력과 반응 속도를 향상시킬 수 있는 게임입니다.</p>
-                    <a href="cursor-game.html" class="game-btn">게임 시작하기</a>
-                </div>
-            </div>
+
+    <main>
+        <!-- 두뇌 훈련 게임 섹션 -->
+        <section class="category-section">
+            <h2 class="category-title">두뇌 훈련 게임</h2>
+            <p class="category-description">재미있게 두뇌를 단련하고 인지 능력을 향상시키는 게임들입니다. 어르신들의 치매 예방에도 효과적입니다.</p>
             
-            <div class="game-card">
-                <div class="game-header">
-                    <i class="game-icon">🔢</i>
-                </div>
-                <div class="game-info">
-                    <h2 class="game-title">암산 게임</h2>
-                    <div class="age-info">
-                        <span class="age-tag">초등학생</span>
-                        <span class="age-tag">중학생</span>
-                        <span class="age-tag">고등학생</span>
-                        <span class="age-tag">성인</span>
+            <div class="games-container">
+                <!-- 기존 게임 카드 -->
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/typing-game.jpg'); background-color: #a29bfe;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
                     </div>
-                    <p class="game-description">다양한 수학 문제를 빠르게 풀어보세요. 덧셈, 뺄셈부터 곱셈, 나눗셈, 제곱까지 난이도별로 다양한 문제가 출제됩니다. 암산 능력을 향상시킬 수 있습니다.</p>
-                    <a href="math-game.html" class="game-btn">게임 시작하기</a>
+                    <div class="game-content">
+                        <h3 class="game-title">타이핑 마스터</h3>
+                        <p class="game-description">제시된 텍스트를 빠르고 정확하게 타이핑하여 속도와 정확도를 향상시키는 게임입니다.</p>
+                        <a href="typing-game.html" class="game-button">시작하기</a>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/memory-game.jpg'); background-color: #ff9ff3;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
+                    </div>
+                    <div class="game-content">
+                        <h3 class="game-title">기억력 카드 게임</h3>
+                        <p class="game-description">같은 그림의 카드 짝을 맞추는 게임으로, 기억력과 집중력을 향상시킵니다.</p>
+                        <a href="memory-game.html" class="game-button">시작하기</a>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/cursor-game.jpg'); background-color: #54a0ff;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
+                    </div>
+                    <div class="game-content">
+                        <h3 class="game-title">AI 커서 추적 게임</h3>
+                        <p class="game-description">화면에 나타나는 목표물을 클릭하며 반응 속도와 집중력을 키우는 게임입니다.</p>
+                        <a href="cursor-game.html" class="game-button">시작하기</a>
+                    </div>
+                </div>
+
+                <!-- 새 게임 카드 (구현 예정) -->
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/number-memory.jpg'); background-color: #1dd1a1;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                            <span class="age-tag">어르신</span>
+                        </div>
+                    </div>
+                    <div class="game-content">
+                        <h3 class="game-title">숫자 기억하기</h3>
+                        <p class="game-description">순서대로 나타나는 숫자를 기억하고 입력하며 단기 기억력을 향상시키는 게임입니다.</p>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
+                    </div>
                 </div>
             </div>
+        </section>
+
+        <!-- 내기 게임 섹션 -->
+        <section class="category-section">
+            <h2 class="category-title">내기 게임</h2>
+            <p class="category-description">점심 내기, 커피 내기 등 가벼운 내기를 위한 공정한 게임들입니다. 회식이나 모임 자리에서 활용해보세요!</p>
             
-            <div class="game-card">
-                <div class="game-header">
-                    <i class="game-icon">📝</i>
-                </div>
-                <div class="game-info">
-                    <h2 class="game-title">단어 게임</h2>
-                    <div class="age-info">
-                        <span class="age-tag">초등학생</span>
-                        <span class="age-tag">중학생</span>
-                        <span class="age-tag">고등학생</span>
-                        <span class="age-tag">성인</span>
+            <div class="games-container">
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/ladder-game.jpg'); background-color: #feca57;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
                     </div>
-                    <p class="game-description">힌트를 보고 가려진 단어를 맞춰보세요. 난이도별로 다양한 단어가 출제되며, 어휘력과 맥락 이해 능력을 향상시킬 수 있습니다.</p>
-                    <a href="word-game.html" class="game-btn">게임 시작하기</a>
+                    <div class="game-content">
+                        <h3 class="game-title">사다리 게임</h3>
+                        <p class="game-description">이름과 결과를 입력하고 사다리를 타면서 공정하게 역할이나 상품을 정하는 게임입니다.</p>
+                        <a href="mini-games/ladder-game.html" class="game-button">시작하기</a>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/roulette-game.jpg'); background-color: #ff6b6b;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
+                    </div>
+                    <div class="game-content">
+                        <h3 class="game-title">랜덤 룰렛</h3>
+                        <p class="game-description">원판을 돌려 메뉴, 장소, 역할 등을 무작위로 결정하는 게임입니다. 결정장애 해결사!</p>
+                        <a href="mini-games/roulette.html" class="game-button">시작하기</a>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/rps-game.jpg'); background-color: #5f27cd;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
+                    </div>
+                    <div class="game-content">
+                        <h3 class="game-title">가위바위보 게임</h3>
+                        <p class="game-description">컴퓨터나 친구와 가위바위보 대결을 펼치는 게임입니다. 3판 2선승제로 승자를 가립니다.</p>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/draw-lots.jpg'); background-color: #00d2d3;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
+                    </div>
+                    <div class="game-content">
+                        <h3 class="game-title">제비뽑기</h3>
+                        <p class="game-description">여러 항목 중에서 무작위로 선택하는 제비뽑기 게임입니다. 당첨/꽝 비율도 설정 가능!</p>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
+                    </div>
                 </div>
             </div>
+        </section>
+
+        <!-- 파티 게임 섹션 -->
+        <section class="category-section">
+            <h2 class="category-title">소통형 파티 게임</h2>
+            <p class="category-description">친구, 가족, 동료들과 함께 즐기며 웃고 떠들 수 있는 소통형 게임들입니다. 모임의 분위기를 업!</p>
             
-            <div class="game-card">
-                <div class="game-header">
-                    <i class="game-icon">⌨️</i>
-                </div>
-                <div class="game-info">
-                    <h2 class="game-title">타이핑 마스터</h2>
-                    <div class="age-info">
-                        <span class="age-tag">초급</span>
-                        <span class="age-tag">중급</span>
-                        <span class="age-tag">고급</span>
+            <div class="games-container">
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/word-relay.jpg'); background-color: #ff9f43;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
                     </div>
-                    <p class="game-description">타이핑 속도와 정확도를 테스트하고 향상시키는 게임입니다. 다양한 난이도의 텍스트를 타이핑하고 분당 단어 수(WPM)와 정확도를 측정해 보세요.</p>
-                    <a href="typing-game.html" class="game-btn">게임 시작하기</a>
+                    <div class="game-content">
+                        <h3 class="game-title">단어 릴레이</h3>
+                        <p class="game-description">이전 단어의 마지막 글자로 시작하는 단어를 이어가는 게임입니다. 시간 제한이 있어요!</p>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/drawing-game.jpg'); background-color: #ee5253;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">전연령</span>
+                        </div>
+                    </div>
+                    <div class="game-content">
+                        <h3 class="game-title">그림 그리기 & 맞추기</h3>
+                        <p class="game-description">한 사람이 그림을 그리면 다른 사람들이 무엇인지 맞추는 게임입니다. 그림 실력은 필요 없어요!</p>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
+                    </div>
+                </div>
+
+                <div class="game-card">
+                    <div class="game-header" style="background-image: url('assets/images/truth-game.jpg'); background-color: #01a3a4;">
+                        <div class="game-overlay"></div>
+                        <div class="age-tags">
+                            <span class="age-tag">12세+</span>
+                        </div>
+                    </div>
+                    <div class="game-content">
+                        <h3 class="game-title">진실 or 거짓</h3>
+                        <p class="game-description">서로에 대해 알아가는 질문 게임입니다. 친구, 연인, 가족과 함께 더 가까워져보세요.</p>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
+                    </div>
                 </div>
             </div>
-            
-            <div class="game-card">
-                <div class="game-header">
-                    <i class="game-icon">🎮</i>
-                </div>
-                <div class="game-info">
-                    <h2 class="game-title">기억력 카드 게임</h2>
-                    <div class="age-info">
-                        <span class="age-tag">초급</span>
-                        <span class="age-tag">중급</span>
-                        <span class="age-tag">고급</span>
-                    </div>
-                    <p class="game-description">짝을 맞추는 카드 게임을 통해 기억력을 향상시켜 보세요. 다양한 테마와 난이도를 선택할 수 있으며, 재미있게 기억력과 집중력을 훈련할 수 있습니다.</p>
-                    <a href="memory-game.html" class="game-btn">게임 시작하기</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <footer>
-        <div class="container">
-            <p>© 2023 교육용 웹 게임 모음. 모든 연령대를 위한 학습 게임입니다.</p>
-        </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2023 모두의 게임. 모든 연령대를 위한 웹 게임 모음입니다.</p>
+        <p>문의: contact@example.com</p>
     </footer>
+
+    <!-- Firebase 스크립트 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+        import { firebaseConfig } from "./firebase-config.js";
+        
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 </body>
 </html> 
