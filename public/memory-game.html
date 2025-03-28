@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>기억력 카드 게임</title>
+    <link rel="stylesheet" href="mobile-styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: #845ef7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            flex-grow: 1;
+            padding: 20px;
+        }
+        
+        .difficulty-container {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .difficulty-btn {
+            background-color: #845ef7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        
+        .difficulty-btn:hover {
+            background-color: #7048e8;
+        }
+        
+        .theme-selection {
+            margin-top: 20px;
+        }
+        
+        .theme-btn {
+            background-color: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .theme-btn.active {
+            background-color: #845ef7;
+            color: white;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .timer {
+            color: #fa5252;
+            font-weight: bold;
+        }
+        
+        .game-board {
+            display: grid;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            width: var(--card-size);
+            height: var(--card-size);
+            background-color: #845ef7;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(var(--card-size) * 0.4);
+            color: white;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+        }
+        
+        .card-front {
+            background-color: #845ef7;
+        }
+        
+        .card-back {
+            background-color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .result-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .result-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #845ef7;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+        }
+        
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            background-color: #845ef7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            background-color: #7048e8;
+        }
+        
+        footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        /* 보상 알림 */
+        .rewards-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #fcc419;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            z-index: 100;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        .rewards-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .best-score {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .new-record {
+            color: #e67700;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                width: 70px;
+                height: 70px;
+                font-size: 30px;
+            }
+            
+            .game-board {
+                gap: 8px;
+            }
+            
+            .result-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        
+        :root {
+            --card-size: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-btn" onclick="window.location.href='index.html'">홈</button>
+        <h1>기억력 카드 게임</h1>
+    </div>
+    
+    <div class="container">
+        <div class="difficulty-container" id="difficulty-container">
+            <h2>게임 설정</h2>
+            <p>난이도를 선택하세요</p>
+            <button class="difficulty-btn" data-grid="4x4">초급 (4x4)</button>
+            <button class="difficulty-btn" data-grid="6x6">중급 (6x6)</button>
+            <button class="difficulty-btn" data-grid="8x6">고급 (8x6)</button>
+            
+            <div class="theme-selection">
+                <p>테마를 선택하세요</p>
+                <button class="theme-btn active" data-theme="emoji">이모지</button>
+                <button class="theme-btn" data-theme="animals">동물</button>
+                <button class="theme-btn" data-theme="fruits">과일</button>
+                <button class="theme-btn" data-theme="transport">교통수단</button>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div>점수: <span id="score">0</span></div>
+            <div>짝을 맞춘 수: <span id="matches">0</span>/<span id="total-pairs">0</span></div>
+            <div class="timer">시간: <span id="time">0</span>초</div>
+        </div>
+        
+        <div class="game-board" id="game-board"></div>
+        
+        <div class="buttons">
+            <button class="btn" id="restart-btn">다시 시작</button>
+            <button class="btn" id="new-game-btn">새 게임</button>
+        </div>
+        
+        <div class="result-container" id="result-container">
+            <div class="result-title">게임 완료!</div>
+            
+            <div class="result-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="final-time">0</div>
+                    <div class="stat-label">소요 시간 (초)</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="final-score">0</div>
+                    <div class="stat-label">최종 점수</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="final-moves">0</div>
+                    <div class="stat-label">총 이동 횟수</div>
+                </div>
+            </div>
+            
+            <div class="best-score">최고 기록: <span id="best-score">0</span>점</div>
+            
+            <div class="buttons">
+                <button class="btn" id="play-again-btn">다시 플레이</button>
+                <button class="btn" onclick="window.location.href='index.html'">메인 메뉴로</button>
+                <button class="btn" onclick="window.location.href='rewards.html'">보상 확인</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="rewards-notification" id="rewards-notification">
+        <div class="rewards-icon">🏆</div>
+        <div class="rewards-text">새로운 보상이 해금되었습니다!</div>
+    </div>
+    
+    <footer>
+        <p>© 2023 교육용 웹 게임 모음. 모든 연령대를 위한 학습 게임입니다.</p>
+    </footer>
+
+    <!-- Firebase 스크립트 추가 -->
+    <script type="module">
+        // Firebase 구성 파일 가져오기
+        import { auth, currentUser, saveUserDataToCloud, loadUserDataFromCloud } from './firebase-config.js';
+        
+        // 로그인 상태 변경 시 동기화
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log('사용자 로그인됨:', user.uid);
+                
+                // 로그인된 경우 최고 점수 가져오기
+                const bestScore = await window.gameRewards.getBestScore('memory');
+                if (bestScoreElement) {
+                    bestScoreElement.textContent = bestScore;
+                }
+            }
+        });
+    </script>
+    
+    <script>
+        // 요소 선택
+        const difficultyContainer = document.getElementById('difficulty-container');
+        const gameBoard = document.getElementById('game-board');
+        const scoreElement = document.getElementById('score');
+        const matchesElement = document.getElementById('matches');
+        const totalPairsElement = document.getElementById('total-pairs');
+        const timeElement = document.getElementById('time');
+        const resultContainer = document.getElementById('result-container');
+        const finalTimeElement = document.getElementById('final-time');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalMovesElement = document.getElementById('final-moves');
+        const bestScoreElement = document.getElementById('best-score');
+        const restartBtn = document.getElementById('restart-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const rewardsNotification = document.getElementById('rewards-notification');
+        
+        // 난이도별 그리드 크기
+        const gridSizes = {
+            '4x4': { rows: 4, cols: 4 },
+            '6x6': { rows: 6, cols: 6 },
+            '8x6': { rows: 8, cols: 6 }
+        };
+        
+        // 테마별 아이템
+        const themes = {
+            'emoji': ['😀', '😎', '🚀', '🎮', '🎧', '🎸', '🏆', '🍕', '🌈', '🎁', '🐱', '🦄', '🦊', '🐼', '🦁', '🐘', '🦋', '🐢', '🐬', '🦜', '🌞', '🌙', '⭐', '🍎'],
+            'animals': ['🐶', '🐱', '🐭', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐮', '🐷', '🐸', '🐙', '🐵', '🦄', '🦓', '🦒', '🦘', '🦬', '🐘', '🦣', '🦏', '🐪'],
+            'fruits': ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🥑', '🥦', '🥒', '🌽', '🥕', '🌶️', '🍄'],
+            'transport': ['🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🛻', '🚚', '🚛', '🚜', '🛵', '🏍️', '🚲', '🚂', '✈️', '🚀', '🚁', '⛵', '🚢', '🛸']
+        };
+        
+        // 게임 변수
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let totalPairs = 0;
+        let isGameActive = false;
+        let score = 0;
+        let moves = 0;
+        let time = 0;
+        let timer;
+        let currentDifficulty = '';
+        let currentTheme = 'emoji';
+        let bestScore = 0;
+        
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGame();
+            // 보상 시스템이 있는지 확인
+            if (window.gameRewards) {
+                bestScore = window.gameRewards.getBestScore('memory');
+                bestScoreElement.textContent = bestScore;
+            }
+        });
+        
+        // 난이도 버튼 이벤트 설정
+        document.querySelectorAll('.difficulty-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                currentDifficulty = button.dataset.grid;
+                startGame();
+            });
+        });
+        
+        // 테마 버튼 이벤트 설정
+        document.querySelectorAll('.theme-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelector('.theme-btn.active').classList.remove('active');
+                button.classList.add('active');
+                currentTheme = button.dataset.theme;
+            });
+        });
+        
+        // 게임 초기화 함수
+        function initializeGame() {
+            // 기본 테마 설정
+            currentTheme = 'emoji';
+            document.querySelector('.theme-btn[data-theme="emoji"]').classList.add('active');
+            
+            // 버튼 이벤트 등록
+            restartBtn.addEventListener('click', restartGame);
+            newGameBtn.addEventListener('click', showDifficultySelect);
+            playAgainBtn.addEventListener('click', showDifficultySelect);
+        }
+        
+        // 게임 시작 함수
+        function startGame() {
+            if (!currentDifficulty) {
+                alert('난이도를 선택해주세요.');
+                return;
+            }
+            
+            // 그리드 크기 설정
+            const { rows, cols } = gridSizes[currentDifficulty];
+            totalPairs = (rows * cols) / 2;
+            totalPairsElement.textContent = totalPairs;
+            
+            // 게임 보드 초기화
+            gameBoard.innerHTML = '';
+            gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            gameBoard.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            
+            // 모바일 환경에서 카드 크기 최적화
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                const cardSize = Math.min(60, (window.innerWidth - 40) / cols);
+                gameBoard.style.gap = '8px';
+                document.documentElement.style.setProperty('--card-size', cardSize + 'px');
+            } else {
+                document.documentElement.style.setProperty('--card-size', '100px');
+            }
+            
+            // 카드 생성
+            createCards(rows, cols);
+            
+            // 변수 초기화
+            matchedPairs = 0;
+            moves = 0;
+            score = 0;
+            time = 0;
+            flippedCards = [];
+            
+            // UI 업데이트
+            matchesElement.textContent = matchedPairs;
+            scoreElement.textContent = score;
+            timeElement.textContent = time;
+            difficultyContainer.style.display = 'none';
+            resultContainer.style.display = 'none';
+            
+            // 타이머 시작
+            clearInterval(timer);
+            timer = setInterval(() => {
+                time++;
+                timeElement.textContent = time;
+            }, 1000);
+            
+            isGameActive = true;
+        }
+        
+        // 카드 생성 함수
+        function createCards(rows, cols) {
+            const totalCards = rows * cols;
+            const themeItems = [...themes[currentTheme]]; // 원본 배열을 변경하지 않기 위해 복사
+            
+            // 필요한 고유 아이템 수 (총 카드 수의 절반)
+            const neededItems = totalCards / 2;
+            
+            // 테마에서 필요한 수의 고유 아이템 선택
+            let selectedItems = [];
+            for (let i = 0; i < neededItems; i++) {
+                if (themeItems.length === 0) break;
+                const randomIndex = Math.floor(Math.random() * themeItems.length);
+                selectedItems.push(themeItems[randomIndex]);
+                // 중복 피하기
+                themeItems.splice(randomIndex, 1);
+            }
+            
+            // 각 아이템을 2개씩 넣어 카드 배열 생성
+            let cardItems = [...selectedItems, ...selectedItems];
+            
+            // 카드 배열 섞기
+            cardItems = shuffleArray(cardItems);
+            
+            // 카드 요소 생성 및 추가
+            cards = [];
+            for (let i = 0; i < totalCards; i++) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.value = cardItems[i];
+                card.dataset.index = i;
+                
+                const cardFront = document.createElement('div');
+                cardFront.className = 'card-front';
+                cardFront.innerHTML = '?';
+                
+                const cardBack = document.createElement('div');
+                cardBack.className = 'card-back';
+                cardBack.innerHTML = cardItems[i];
+                
+                card.appendChild(cardFront);
+                card.appendChild(cardBack);
+                
+                card.addEventListener('click', () => flipCard(card));
+                gameBoard.appendChild(card);
+                cards.push(card);
+            }
+        }
+        
+        // 카드 뒤집기 함수
+        function flipCard(card) {
+            if (!isGameActive || flippedCards.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) {
+                return;
+            }
+            
+            // 카드 뒤집기
+            card.classList.add('flipped');
+            flippedCards.push(card);
+            
+            // 두 카드가 뒤집혔으면 일치 여부 확인
+            if (flippedCards.length === 2) {
+                moves++;
+                checkForMatch();
+            }
+        }
+        
+        // 카드 일치 확인 함수
+        function checkForMatch() {
+            const card1 = flippedCards[0];
+            const card2 = flippedCards[1];
+            
+            // 값이 같은지 확인
+            if (card1.dataset.value === card2.dataset.value) {
+                // 일치!
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                
+                // 일치한 페어 카운트 증가
+                matchedPairs++;
+                matchesElement.textContent = matchedPairs;
+                
+                // 점수 계산 - 난이도에 따라 차등 부여
+                let baseScore = 0;
+                switch (currentDifficulty) {
+                    case '4x4': baseScore = 10; break;
+                    case '6x6': baseScore = 15; break;
+                    case '8x6': baseScore = 20; break;
+                }
+                
+                // 빨리 맞출수록 추가 점수
+                const timeBonus = Math.max(0, 30 - Math.floor(time / matchedPairs));
+                const moveBonus = Math.max(0, 5 - Math.floor(moves / matchedPairs));
+                
+                const pairScore = baseScore + timeBonus + moveBonus;
+                score += pairScore;
+                scoreElement.textContent = score;
+                
+                // 애니메이션 지연 후 다음 카드 선택 가능
+                setTimeout(() => {
+                    flippedCards = [];
+                    
+                    // 모든 쌍을 찾았는지 확인
+                    if (matchedPairs === totalPairs) {
+                        endGame();
+                    }
+                }, 500);
+            } else {
+                // 불일치
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+        
+        // 게임 종료 함수
+        function endGame() {
+            isGameActive = false;
+            clearInterval(timer);
+            
+            // 결과 표시
+            finalTimeElement.textContent = time;
+            finalScoreElement.textContent = score;
+            finalMovesElement.textContent = moves;
+            
+            // 최고 점수 확인 및 업데이트
+            const isNewRecord = score > bestScore;
+            if (isNewRecord) {
+                bestScore = score;
+                bestScoreElement.textContent = bestScore;
+                bestScoreElement.classList.add('new-record');
+            } else {
+                bestScoreElement.classList.remove('new-record');
+                bestScoreElement.textContent = bestScore;
+            }
+            
+            // 보상 시스템에 점수 업데이트
+            if (window.gameRewards) {
+                const newRewards = window.gameRewards.updateScore('memory', score);
+                if (newRewards) {
+                    showRewardsNotification();
+                }
+            }
+            
+            resultContainer.style.display = 'block';
+        }
+        
+        // 보상 알림 표시
+        function showRewardsNotification() {
+            rewardsNotification.style.display = 'flex';
+            rewardsNotification.style.animation = 'slideIn 0.5s forwards';
+            
+            setTimeout(() => {
+                rewardsNotification.style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => {
+                    rewardsNotification.style.display = 'none';
+                }, 500);
+            }, 3000);
+        }
+        
+        // 게임 재시작 함수
+        function restartGame() {
+            startGame();
+        }
+        
+        // 난이도 선택 화면 표시 함수
+        function showDifficultySelect() {
+            difficultyContainer.style.display = 'block';
+            resultContainer.style.display = 'none';
+        }
+        
+        // 배열 섞기 함수
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    </script>
+</body>
+</html> 

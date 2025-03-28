@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>가위바위보 게임 - 모두의 게임</title>
+    <link rel="stylesheet" href="../mobile-styles.css">
+    <link rel="stylesheet" href="../common-styles.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --text-color: #2d3436;
+            --light-color: #f7f7f7;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .score {
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 5px;
+        }
+
+        .battle-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .player-side, .computer-side {
+            text-align: center;
+        }
+
+        .player-side h3, .computer-side h3 {
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .player-choice, .computer-choice {
+            width: 120px;
+            height: 120px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .vs {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #aaa;
+        }
+
+        .choice-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .choice-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            background-color: white;
+            box-shadow: var(--shadow);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .result-message {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            height: 40px;
+        }
+
+        .win { color: #4cd137; }
+        .lose { color: #e84118; }
+        .draw { color: #7f8fa6; }
+
+        .match-result {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: rgba(108, 92, 231, 0.1);
+            display: none;
+        }
+
+        .rock { background-color: #e1b12c; }
+        .scissors { background-color: #7ed6df; }
+        .paper { background-color: #f0932b; }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateY(0); }
+            25% { transform: translateY(-10px); }
+            50% { transform: translateY(0); }
+            75% { transform: translateY(-10px); }
+        }
+
+        .pop {
+            animation: pop 0.5s;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .game-rules {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .game-rules h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .game-rules ul {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        .game-rules li {
+            margin-bottom: 8px;
+        }
+
+        .best-score {
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+
+        .best-score-value {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .rewards-notification {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            z-index: 1000;
+            transition: bottom 0.5s;
+        }
+
+        .rewards-notification.show {
+            bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .battle-area {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .vs {
+                margin: 10px 0;
+            }
+            
+            .player-choice, .computer-choice {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+            
+            .choice-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+        }
+        
+        .developer-credit {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-btn" onclick="window.location.href='../index.html'">홈</button>
+        <h1>가위바위보 게임</h1>
+    </div>
+    
+    <div class="container">
+        <div class="game-section">
+            <div class="scoreboard">
+                <div class="score">
+                    <div>나</div>
+                    <div class="score-value" id="player-score">0</div>
+                </div>
+                <div class="score">
+                    <div>비김</div>
+                    <div class="score-value" id="tie-score">0</div>
+                </div>
+                <div class="score">
+                    <div>컴퓨터</div>
+                    <div class="score-value" id="computer-score">0</div>
+                </div>
+            </div>
+            
+            <div class="battle-area">
+                <div class="player-side">
+                    <h3>나의 선택</h3>
+                    <div class="player-choice" id="player-choice">?</div>
+                </div>
+                <div class="vs">VS</div>
+                <div class="computer-side">
+                    <h3>컴퓨터의 선택</h3>
+                    <div class="computer-choice" id="computer-choice">?</div>
+                </div>
+            </div>
+            
+            <div class="result-message" id="result-message"></div>
+            
+            <div class="choice-buttons">
+                <button class="choice-btn scissors" onclick="play('scissors')">✌️</button>
+                <button class="choice-btn rock" onclick="play('rock')">✊</button>
+                <button class="choice-btn paper" onclick="play('paper')">✋</button>
+            </div>
+            
+            <div class="match-result" id="match-result"></div>
+            
+            <button class="btn" id="reset-btn" onclick="resetGame()">게임 다시 시작</button>
+            
+            <div class="best-score">
+                최고 점수: <span class="best-score-value" id="best-score">0</span>승
+            </div>
+        </div>
+        
+        <div class="game-rules">
+            <h3>게임 규칙</h3>
+            <ul>
+                <li>가위바위보 게임은 3판 2선승제로 진행됩니다.</li>
+                <li>가위는 보를 이기고, 바위는 가위를 이기고, 보는 바위를 이깁니다.</li>
+                <li>최종 승자가 결정되면 게임이 종료되고, 승리 횟수가 기록됩니다.</li>
+                <li>연속으로 3번 승리하면 특별한 보상이 주어집니다.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="rewards-notification" id="rewards-notification"></div>
+    
+    <div class="footer">
+        <p>© 2023 모두의 게임 | <span class="developer-credit">개발자: <strong>윤성</strong></span></p>
+    </div>
+    
+    <script>
+        // 게임 상태 변수
+        let playerScore = 0;
+        let computerScore = 0;
+        let tieScore = 0;
+        let gameActive = true;
+        let roundCount = 0;
+        let bestScore = localStorage.getItem('rpsGameBestScore') || 0;
+        let consecutiveWins = 0;
+        
+        // DOM 요소
+        const playerScoreEl = document.getElementById('player-score');
+        const computerScoreEl = document.getElementById('computer-score');
+        const tieScoreEl = document.getElementById('tie-score');
+        const playerChoiceEl = document.getElementById('player-choice');
+        const computerChoiceEl = document.getElementById('computer-choice');
+        const resultMessageEl = document.getElementById('result-message');
+        const matchResultEl = document.getElementById('match-result');
+        const bestScoreEl = document.getElementById('best-score');
+        const rewardsNotification = document.getElementById('rewards-notification');
+        
+        // 초기화
+        function init() {
+            bestScoreEl.textContent = bestScore;
+        }
+        
+        // 게임 플레이
+        function play(playerChoice) {
+            if (!gameActive) return;
+            
+            // 애니메이션 초기화
+            playerChoiceEl.className = 'player-choice shake';
+            computerChoiceEl.className = 'computer-choice shake';
+            
+            // 재애니메이션을 위해 DOM 리플로우 강제
+            void playerChoiceEl.offsetWidth;
+            
+            // 선택 결과 표시 애니메이션 추가
+            playerChoiceEl.className = 'player-choice shake';
+            computerChoiceEl.className = 'computer-choice shake';
+            
+            // 0.5초 후 결과 표시
+            setTimeout(() => {
+                // 컴퓨터 선택
+                const choices = ['rock', 'paper', 'scissors'];
+                const computerChoice = choices[Math.floor(Math.random() * 3)];
+                
+                // 선택 결과 표시
+                displayChoice(playerChoiceEl, playerChoice);
+                displayChoice(computerChoiceEl, computerChoice);
+                
+                // 결과 계산
+                const result = getResult(playerChoice, computerChoice);
+                
+                // 점수 업데이트
+                updateScore(result);
+                
+                // 결과 메시지 표시
+                displayResultMessage(result);
+                
+                // 게임 종료 확인
+                checkGameEnd();
+                
+                // 애니메이션 종료 후 클래스 제거
+                setTimeout(() => {
+                    playerChoiceEl.classList.remove('shake');
+                    computerChoiceEl.classList.remove('shake');
+                    
+                    // 팝 애니메이션 추가
+                    if (result === 'win') {
+                        playerChoiceEl.classList.add('pop');
+                    } else if (result === 'lose') {
+                        computerChoiceEl.classList.add('pop');
+                    }
+                    
+                    // 팝 애니메이션 제거
+                    setTimeout(() => {
+                        playerChoiceEl.classList.remove('pop');
+                        computerChoiceEl.classList.remove('pop');
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+        
+        // 선택 표시
+        function displayChoice(element, choice) {
+            // 기존 클래스 제거
+            element.className = 'player-choice';
+            if (element.id === 'computer-choice') {
+                element.className = 'computer-choice';
+            }
+            
+            // 클래스 추가
+            element.classList.add(choice);
+            
+            // 이모지 표시
+            if (choice === 'rock') {
+                element.textContent = '✊';
+            } else if (choice === 'paper') {
+                element.textContent = '✋';
+            } else if (choice === 'scissors') {
+                element.textContent = '✌️';
+            }
+        }
+        
+        // 결과 계산
+        function getResult(playerChoice, computerChoice) {
+            if (playerChoice === computerChoice) {
+                return 'tie';
+            }
+            
+            if (
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'paper' && computerChoice === 'rock') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                return 'win';
+            }
+            
+            return 'lose';
+        }
+        
+        // 점수 업데이트
+        function updateScore(result) {
+            roundCount++;
+            
+            if (result === 'win') {
+                playerScore++;
+                playerScoreEl.textContent = playerScore;
+                consecutiveWins++;
+                
+                // 연속 승리 보상 체크
+                if (consecutiveWins === 3) {
+                    showRewardsNotification('연속 3승 달성! 🏆 특별한 보상이 지급되었습니다.');
+                    saveToGameRewards('rps_consecutive_wins');
+                }
+            } else if (result === 'lose') {
+                computerScore++;
+                computerScoreEl.textContent = computerScore;
+                consecutiveWins = 0;
+            } else {
+                tieScore++;
+                tieScoreEl.textContent = tieScore;
+            }
+        }
+        
+        // 결과 메시지 표시
+        function displayResultMessage(result) {
+            if (result === 'win') {
+                resultMessageEl.textContent = '승리했습니다! 👍';
+                resultMessageEl.className = 'result-message win';
+            } else if (result === 'lose') {
+                resultMessageEl.textContent = '패배했습니다! 👎';
+                resultMessageEl.className = 'result-message lose';
+            } else {
+                resultMessageEl.textContent = '비겼습니다! 🤝';
+                resultMessageEl.className = 'result-message draw';
+            }
+        }
+        
+        // 게임 종료 확인
+        function checkGameEnd() {
+            if (playerScore >= 2 || computerScore >= 2) {
+                gameActive = false;
+                matchResultEl.style.display = 'block';
+                
+                if (playerScore > computerScore) {
+                    matchResultEl.textContent = '축하합니다! 최종 승리했습니다. 🎉';
+                    matchResultEl.className = 'match-result win';
+                    
+                    // 최고 점수 업데이트
+                    updateBestScore();
+                    
+                    // 게임 보상 저장
+                    saveGameResult(true);
+                } else {
+                    matchResultEl.textContent = '아쉽게도 최종 패배했습니다. 😢';
+                    matchResultEl.className = 'match-result lose';
+                    
+                    // 게임 보상 저장
+                    saveGameResult(false);
+                }
+            }
+        }
+        
+        // 최고 점수 업데이트
+        function updateBestScore() {
+            // 현재 연승 횟수가 최고 점수보다 높으면 업데이트
+            if (consecutiveWins > bestScore) {
+                bestScore = consecutiveWins;
+                localStorage.setItem('rpsGameBestScore', bestScore);
+                bestScoreEl.textContent = bestScore;
+                
+                // 최고 점수 갱신 보상
+                if (bestScore >= 5) {
+                    showRewardsNotification('최고 점수 갱신! 🎖️ 특별한 보상이 지급되었습니다.');
+                    saveToGameRewards('rps_high_score');
+                }
+            }
+        }
+        
+        // 게임 결과 저장
+        function saveGameResult(isWin) {
+            // 승리 횟수 저장
+            const winCount = parseInt(localStorage.getItem('rpsGameWinCount') || 0) + (isWin ? 1 : 0);
+            localStorage.setItem('rpsGameWinCount', winCount);
+            
+            // 플레이 횟수 저장
+            const playCount = parseInt(localStorage.getItem('rpsGamePlayCount') || 0) + 1;
+            localStorage.setItem('rpsGamePlayCount', playCount);
+            
+            // 보상 시스템에 기록
+            if (isWin) {
+                saveToGameRewards('rps_win');
+                
+                // 첫 승리 보상
+                if (winCount === 1) {
+                    showRewardsNotification('첫 승리! 🥇 축하합니다!');
+                    saveToGameRewards('rps_first_win');
+                }
+                
+                // 10승 보상
+                if (winCount === 10) {
+                    showRewardsNotification('10승 달성! 🏆 멋진 성과입니다!');
+                    saveToGameRewards('rps_10_wins');
+                }
+            }
+            
+            // 첫 플레이 보상
+            if (playCount === 1) {
+                showRewardsNotification('첫 게임 플레이! 🎮 보상이 지급되었습니다.');
+                saveToGameRewards('rps_first_play');
+            }
+        }
+        
+        // 보상 시스템에 저장
+        function saveToGameRewards(key) {
+            try {
+                // 전역 gameRewards 객체가 있는지 확인
+                if (typeof window.gameRewards !== 'undefined') {
+                    window.gameRewards.addReward(key);
+                } else {
+                    // localStorage에 임시 저장
+                    const rewards = JSON.parse(localStorage.getItem('gameRewards') || '{}');
+                    rewards[key] = true;
+                    localStorage.setItem('gameRewards', JSON.stringify(rewards));
+                }
+            } catch (e) {
+                console.error('보상 저장 중 오류 발생:', e);
+            }
+        }
+        
+        // 보상 알림 표시
+        function showRewardsNotification(message) {
+            rewardsNotification.textContent = message;
+            rewardsNotification.classList.add('show');
+            
+            setTimeout(() => {
+                rewardsNotification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 게임 리셋
+        function resetGame() {
+            playerScore = 0;
+            computerScore = 0;
+            tieScore = 0;
+            gameActive = true;
+            roundCount = 0;
+            
+            playerScoreEl.textContent = '0';
+            computerScoreEl.textContent = '0';
+            tieScoreEl.textContent = '0';
+            
+            playerChoiceEl.textContent = '?';
+            computerChoiceEl.textContent = '?';
+            
+            playerChoiceEl.className = 'player-choice';
+            computerChoiceEl.className = 'computer-choice';
+            
+            resultMessageEl.textContent = '';
+            matchResultEl.style.display = 'none';
+        }
+        
+        // 페이지 로드 시 초기화
+        window.onload = init;
+    </script>
+</body>
+</html> 

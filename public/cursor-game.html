@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 커서 추적 게임</title>
+    <link rel="stylesheet" href="mobile-styles.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .target {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #ff6b6b;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .target:hover {
+            background-color: #ff8787;
+        }
+        
+        .ai-cursor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #4dabf7;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        #score-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            z-index: 100;
+        }
+        
+        #timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            z-index: 100;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 200;
+            display: none;
+        }
+        
+        #difficulty-select {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 200;
+        }
+        
+        .difficulty-btn {
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            min-width: 150px;
+        }
+        
+        .difficulty-btn:hover {
+            background-color: #339af0;
+        }
+        
+        #home-btn {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            z-index: 100;
+            cursor: pointer;
+        }
+        
+        button {
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background-color: #339af0;
+        }
+        
+        /* 보상 알림 */
+        .rewards-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #fcc419;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            z-index: 300;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        .rewards-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .best-score {
+            font-size: 16px;
+            color: #495057;
+            margin-top: 15px;
+        }
+        
+        .new-record {
+            color: #e67700;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .target {
+                width: 50px;
+                height: 50px;
+            }
+            
+            #score-container, #timer {
+                font-size: 16px;
+                padding: 8px 15px;
+            }
+            
+            #home-btn {
+                font-size: 14px;
+                padding: 8px 15px;
+            }
+            
+            .difficulty-btn {
+                min-width: 80%;
+                margin: 8px auto;
+                padding: 15px;
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="score-container">점수: <span id="score">0</span></div>
+        <div id="timer">시간: <span id="time">60</span>초</div>
+        <div id="home-btn" onclick="window.location.href='index.html'">홈으로</div>
+        <div class="ai-cursor" id="ai-cursor"></div>
+    </div>
+    
+    <div id="difficulty-select">
+        <h2>난이도 선택</h2>
+        <p>나에게 맞는 난이도를 선택하세요</p>
+        <button class="difficulty-btn" onclick="startGame('초등학생')">초등학생</button><br>
+        <button class="difficulty-btn" onclick="startGame('중학생')">중학생</button><br>
+        <button class="difficulty-btn" onclick="startGame('고등학생')">고등학생</button><br>
+        <button class="difficulty-btn" onclick="startGame('성인')">성인</button>
+    </div>
+    
+    <div id="game-over">
+        <h2>게임 종료!</h2>
+        <p>최종 점수: <span id="final-score">0</span></p>
+        <div class="best-score">최고 기록: <span id="best-score">0</span>점</div>
+        <button id="restart-button">다시 시작</button>
+        <button onclick="window.location.href='index.html'">메인 메뉴로</button>
+        <button onclick="window.location.href='rewards.html'">보상 확인</button>
+    </div>
+    
+    <div class="rewards-notification" id="rewards-notification">
+        <div class="rewards-icon">🏆</div>
+        <div class="rewards-text">새로운 보상이 해금되었습니다!</div>
+    </div>
+
+    <footer>
+        <p>© 2023 교육용 웹 게임 모음. 모든 연령대를 위한 학습 게임입니다.</p>
+    </footer>
+    
+    <!-- Firebase 스크립트 추가 -->
+    <script type="module">
+        // Firebase 구성 파일 가져오기
+        import { auth, currentUser, saveUserDataToCloud, loadUserDataFromCloud } from './firebase-config.js';
+        
+        // 로그인 상태 변경 시 동기화
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                console.log('사용자 로그인됨:', user.uid);
+                
+                // 로그인된 경우 최고 점수 가져오기
+                const bestScore = await window.gameRewards.getBestScore('ai-cursor');
+                if (bestScoreElement) {
+                    bestScoreElement.textContent = bestScore;
+                }
+            }
+        });
+    </script>
+    
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+        const aiCursor = document.getElementById('ai-cursor');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const bestScoreElement = document.getElementById('best-score');
+        const restartButton = document.getElementById('restart-button');
+        const difficultySelect = document.getElementById('difficulty-select');
+        const rewardsNotification = document.getElementById('rewards-notification');
+        
+        let score = 0;
+        let timeLeft = 60;
+        let gameActive = false;
+        let targets = [];
+        let targetCounter = 1;
+        let playerPosition = { x: 0, y: 0 };
+        let aiPosition = { x: 0, y: 0 };
+        let difficulty = null;
+        let bestScore = 0;
+        
+        // 난이도별 설정값
+        const difficultySettings = {
+            '초등학생': {
+                targetSize: 50,
+                gameTime: 90,
+                aiFollowSpeed: 0.02,
+                distractionChance: 0.003,
+                targetAddScore: 70,
+                pointsPerTarget: 5
+            },
+            '중학생': {
+                targetSize: 40,
+                gameTime: 60,
+                aiFollowSpeed: 0.03,
+                distractionChance: 0.005,
+                targetAddScore: 50,
+                pointsPerTarget: 10
+            },
+            '고등학생': {
+                targetSize: 30,
+                gameTime: 45,
+                aiFollowSpeed: 0.04,
+                distractionChance: 0.007,
+                targetAddScore: 40,
+                pointsPerTarget: 15
+            },
+            '성인': {
+                targetSize: 25,
+                gameTime: 30,
+                aiFollowSpeed: 0.05,
+                distractionChance: 0.01,
+                targetAddScore: 30,
+                pointsPerTarget: 20
+            }
+        };
+        
+        // AI 커서의 행동 특성 (기본값)
+        const aiSettings = {
+            followSpeed: 0.03,
+            distractionChance: 0.005,
+            maxDistraction: 3000,
+            randomMovementRange: 100,
+            randomMovementSpeed: 0.05
+        };
+        
+        let currentDistraction = null;
+        let distractionTimer = null;
+        let gameTimer = null;
+        
+        // 난이도 선택 및 게임 시작
+        function startGame(selectedDifficulty) {
+            difficulty = selectedDifficulty;
+            difficultySelect.style.display = 'none';
+            
+            // 난이도에 따른 설정 적용
+            const settings = difficultySettings[difficulty];
+            timeLeft = settings.gameTime;
+            aiSettings.followSpeed = settings.aiFollowSpeed;
+            aiSettings.distractionChance = settings.distractionChance;
+            
+            initGame();
+        }
+        
+        // 게임 초기화
+        function initGame() {
+            const settings = difficultySettings[difficulty];
+            
+            score = 0;
+            gameActive = true;
+            scoreElement.textContent = score;
+            timeElement.textContent = timeLeft;
+            gameOverScreen.style.display = 'none';
+            targets.forEach(target => target.remove());
+            targets = [];
+            targetCounter = 1;
+            
+            // 첫 타겟 생성
+            createTarget();
+            
+            // 타이머 시작
+            if (gameTimer) {
+                clearInterval(gameTimer);
+            }
+            
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // 타겟 생성
+        function createTarget() {
+            if (!gameActive) return;
+            
+            const targetSize = difficultySettings[difficulty].targetSize;
+            const target = document.createElement('div');
+            target.className = 'target';
+            target.style.width = targetSize + 'px';
+            target.style.height = targetSize + 'px';
+            target.innerText = targetCounter;
+            
+            // 랜덤 위치 (화면 경계에서 약간 떨어진 곳)
+            const margin = targetSize;
+            const x = margin + Math.random() * (window.innerWidth - 2 * margin);
+            const y = margin + Math.random() * (window.innerHeight - 2 * margin);
+            
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+            
+            // 모바일에서 터치 이벤트 지원
+            target.addEventListener('click', () => targetClicked(target));
+            target.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                targetClicked(target);
+            }, { passive: false });
+            
+            gameContainer.appendChild(target);
+            targets.push(target);
+            targetCounter++;
+            
+            // 일정 점수 간격으로 새 타겟 생성
+            if (score >= difficultySettings[difficulty].targetAddScore * (targetCounter - 2)) {
+                setTimeout(createTarget, 500);
+            }
+        }
+        
+        // 마우스 이동 이벤트
+        document.addEventListener('mousemove', (e) => {
+            playerPosition.x = e.clientX;
+            playerPosition.y = e.clientY;
+        });
+        
+        // 터치 이벤트 지원 추가
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // 스크롤 방지
+            if (e.touches.length > 0) {
+                const touch = e.touches[0];
+                playerPosition.x = touch.clientX;
+                playerPosition.y = touch.clientY;
+            }
+        }, { passive: false });
+        
+        // AI 커서 움직임 업데이트
+        function updateAiCursor() {
+            if (!gameActive) {
+                requestAnimationFrame(updateAiCursor);
+                return;
+            }
+            
+            let targetX, targetY;
+            
+            // AI가 현재 특정 타겟에 집중하고 있는지 확인
+            if (currentDistraction) {
+                const rect = currentDistraction.getBoundingClientRect();
+                targetX = rect.left + rect.width / 2;
+                targetY = rect.top + rect.height / 2;
+            } 
+            // 새로운 집중 대상을 찾을 확률 계산
+            else if (targets.length > 0 && Math.random() < aiSettings.distractionChance) {
+                // 랜덤한 타겟 선택
+                currentDistraction = targets[Math.floor(Math.random() * targets.length)];
+                const rect = currentDistraction.getBoundingClientRect();
+                targetX = rect.left + rect.width / 2;
+                targetY = rect.top + rect.height / 2;
+                
+                // 일정 시간 후 집중 해제
+                distractionTimer = setTimeout(() => {
+                    currentDistraction = null;
+                }, Math.random() * aiSettings.maxDistraction);
+            } 
+            // 기본적으로 플레이어 커서를 따라감
+            else {
+                targetX = playerPosition.x;
+                targetY = playerPosition.y;
+                
+                // 약간의 랜덤한 움직임 추가
+                if (Math.random() < 0.03) {
+                    targetX += (Math.random() - 0.5) * aiSettings.randomMovementRange;
+                    targetY += (Math.random() - 0.5) * aiSettings.randomMovementRange;
+                }
+            }
+            
+            // 부드러운 이동
+            aiPosition.x += (targetX - aiPosition.x) * (currentDistraction ? aiSettings.randomMovementSpeed : aiSettings.followSpeed);
+            aiPosition.y += (targetY - aiPosition.y) * (currentDistraction ? aiSettings.randomMovementSpeed : aiSettings.followSpeed);
+            
+            // AI 커서 위치 업데이트
+            aiCursor.style.left = `${aiPosition.x}px`;
+            aiCursor.style.top = `${aiPosition.y}px`;
+            
+            requestAnimationFrame(updateAiCursor);
+        }
+        
+        // 타겟 클릭 처리 함수
+        function targetClicked(target) {
+            if (!gameActive) return;
+            
+            const settings = difficultySettings[difficulty];
+            score += settings.pointsPerTarget;
+            scoreElement.textContent = score;
+            target.remove();
+            
+            // 타겟 배열에서 제거
+            targets = targets.filter(t => t !== target);
+            
+            // AI가 타겟에 집중하고 있었다면 집중 해제
+            if (currentDistraction === target) {
+                currentDistraction = null;
+                clearTimeout(distractionTimer);
+            }
+            
+            createTarget();
+        }
+        
+        // 게임 종료
+        function endGame() {
+            gameActive = false;
+            finalScoreElement.textContent = score;
+            
+            // 최고 점수 확인 및 업데이트
+            const isNewRecord = score > bestScore;
+            if (isNewRecord) {
+                bestScore = score;
+                bestScoreElement.textContent = bestScore;
+                bestScoreElement.classList.add('new-record');
+            } else {
+                bestScoreElement.classList.remove('new-record');
+                bestScoreElement.textContent = bestScore;
+            }
+            
+            // 보상 시스템에 점수 업데이트
+            if (window.gameRewards) {
+                const newRewards = window.gameRewards.updateScore('ai-cursor', score);
+                if (newRewards) {
+                    showRewardsNotification();
+                }
+            }
+            
+            gameOverScreen.style.display = 'block';
+        }
+        
+        // 보상 알림 표시
+        function showRewardsNotification() {
+            rewardsNotification.style.display = 'flex';
+            rewardsNotification.style.animation = 'slideIn 0.5s forwards';
+            
+            setTimeout(() => {
+                rewardsNotification.style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => {
+                    rewardsNotification.style.display = 'none';
+                }, 500);
+            }, 3000);
+        }
+        
+        // 다시 시작 버튼
+        restartButton.addEventListener('click', () => {
+            gameOverScreen.style.display = 'none';
+            difficultySelect.style.display = 'block';
+        });
+        
+        // 게임 시작
+        window.addEventListener('load', () => {
+            // 초기에는 난이도 선택 화면만 표시
+            gameOverScreen.style.display = 'none';
+            difficultySelect.style.display = 'block';
+            updateAiCursor();
+        });
+    </script>
+</body>
+</html> 

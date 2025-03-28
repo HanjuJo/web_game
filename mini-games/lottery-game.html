@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>제비뽑기 게임 - 모두의 게임</title>
+    <link rel="stylesheet" href="../mobile-styles.css">
+    <link rel="stylesheet" href="../common-styles.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --text-color: #2d3436;
+            --light-color: #f7f7f7;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .lottery-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .lottery-stick {
+            width: 60px;
+            height: 160px;
+            background-color: #ffeaa7;
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .lottery-stick::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background-color: #fdcb6e;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .lottery-stick:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .lottery-stick.pulled {
+            pointer-events: none;
+        }
+
+        .lottery-stick.winner {
+            background-color: #55efc4;
+        }
+
+        .lottery-stick.loser {
+            background-color: #fab1a0;
+        }
+
+        .lottery-result {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            transform: translateY(50px);
+            transition: transform 0.5s;
+        }
+
+        .lottery-stick.pulled .lottery-result {
+            transform: translateY(0);
+        }
+
+        .stick-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            pointer-events: none;
+        }
+
+        .lottery-settings {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .setting-label {
+            font-weight: bold;
+        }
+
+        .setting-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .number-input {
+            width: 60px;
+            text-align: center;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .number-control {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            user-select: none;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .result-message {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            height: 60px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .result-message.show {
+            opacity: 1;
+        }
+
+        .win { color: #00b894; }
+        .lose { color: #d63031; }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 5px;
+        }
+
+        .game-rules {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .game-rules h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .game-rules ul {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        .game-rules li {
+            margin-bottom: 8px;
+        }
+        
+        .rewards-notification {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            z-index: 1000;
+            transition: bottom 0.5s;
+        }
+
+        .rewards-notification.show {
+            bottom: 20px;
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background-color: #fd79a8;
+            top: -20px;
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            .lottery-container {
+                gap: 10px;
+            }
+            
+            .lottery-stick {
+                width: 50px;
+                height: 130px;
+            }
+            
+            .setting-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+        }
+        
+        .developer-credit {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-btn" onclick="window.location.href='../index.html'">홈</button>
+        <h1>제비뽑기 게임</h1>
+    </div>
+    
+    <div class="container">
+        <div class="game-section">
+            <p>여러 개의 제비 중에 당첨된 제비를 뽑아보세요!</p>
+            
+            <div class="lottery-settings">
+                <div class="setting-row">
+                    <div class="setting-label">제비 개수</div>
+                    <div class="setting-controls">
+                        <div class="number-control" onclick="adjustStickCount(-1)">-</div>
+                        <input type="number" id="stick-count" class="number-input" value="5" min="3" max="10">
+                        <div class="number-control" onclick="adjustStickCount(1)">+</div>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-label">당첨 개수</div>
+                    <div class="setting-controls">
+                        <div class="number-control" onclick="adjustWinnerCount(-1)">-</div>
+                        <input type="number" id="winner-count" class="number-input" value="1" min="1" max="5">
+                        <div class="number-control" onclick="adjustWinnerCount(1)">+</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div>플레이 횟수</div>
+                    <div class="stat-value" id="play-count">0</div>
+                </div>
+                <div class="stat">
+                    <div>승리 횟수</div>
+                    <div class="stat-value" id="win-count">0</div>
+                </div>
+                <div class="stat">
+                    <div>운이 좋은 정도</div>
+                    <div class="stat-value" id="luck-percent">0%</div>
+                </div>
+            </div>
+            
+            <div id="lottery-container" class="lottery-container">
+                <!-- 자바스크립트로 제비 생성 -->
+            </div>
+            
+            <div id="result-message" class="result-message"></div>
+            
+            <button id="reset-btn" class="btn">게임 리셋</button>
+        </div>
+        
+        <div class="game-rules">
+            <h3>게임 규칙</h3>
+            <ul>
+                <li>여러 개의 제비 중에서 당첨된 제비를 찾는 게임입니다.</li>
+                <li>제비의 개수와 당첨 개수를 설정할 수 있습니다.</li>
+                <li>당첨 확률을 계산해 보세요: (당첨 개수 ÷ 전체 제비 개수) × 100%</li>
+                <li>모든 제비를 뽑으면 게임이 자동으로 리셋됩니다.</li>
+                <li>운이 좋은 정도는 (승리 횟수 ÷ 플레이 횟수) × 100%로 계산됩니다.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="rewards-notification" id="rewards-notification"></div>
+    <div id="confetti" class="confetti"></div>
+    
+    <div class="footer">
+        <p>© 2023 모두의 게임 | <span class="developer-credit">개발자: <strong>윤성</strong></span></p>
+    </div>
+    
+    <script>
+        // 게임 상태 변수
+        let stickCount = 5;
+        let winnerCount = 1;
+        let pulledSticks = 0;
+        let hasWon = false;
+        let playCount = parseInt(localStorage.getItem('lotteryGamePlayCount') || 0);
+        let winCount = parseInt(localStorage.getItem('lotteryGameWinCount') || 0);
+        
+        // DOM 요소
+        const lotteryContainer = document.getElementById('lottery-container');
+        const resultMessage = document.getElementById('result-message');
+        const resetButton = document.getElementById('reset-btn');
+        const stickCountInput = document.getElementById('stick-count');
+        const winnerCountInput = document.getElementById('winner-count');
+        const playCountEl = document.getElementById('play-count');
+        const winCountEl = document.getElementById('win-count');
+        const luckPercentEl = document.getElementById('luck-percent');
+        const rewardsNotification = document.getElementById('rewards-notification');
+        const confettiContainer = document.getElementById('confetti');
+        
+        // 초기화
+        function init() {
+            // 통계 표시
+            updateStats();
+            
+            // 이벤트 리스너 등록
+            resetButton.addEventListener('click', resetGame);
+            stickCountInput.addEventListener('change', validateSettings);
+            winnerCountInput.addEventListener('change', validateSettings);
+            
+            // 제비 생성
+            createLotterySticks();
+            
+            // 첫 플레이 보상 확인
+            checkFirstPlay();
+        }
+        
+        // 제비 생성
+        function createLotterySticks() {
+            // 이전 제비 제거
+            lotteryContainer.innerHTML = '';
+            
+            // 당첨 제비 결정
+            const winners = [];
+            while (winners.length < winnerCount) {
+                const winningIndex = Math.floor(Math.random() * stickCount);
+                if (!winners.includes(winningIndex)) {
+                    winners.push(winningIndex);
+                }
+            }
+            
+            // 제비 생성
+            for (let i = 0; i < stickCount; i++) {
+                const stick = document.createElement('div');
+                stick.className = 'lottery-stick';
+                
+                const label = document.createElement('div');
+                label.className = 'stick-label';
+                label.textContent = (i + 1);
+                
+                const result = document.createElement('div');
+                result.className = 'lottery-result';
+                
+                if (winners.includes(i)) {
+                    result.textContent = '당첨';
+                    result.style.color = '#00b894';
+                    stick.dataset.result = 'win';
+                } else {
+                    result.textContent = '꽝';
+                    result.style.color = '#d63031';
+                    stick.dataset.result = 'lose';
+                }
+                
+                stick.appendChild(label);
+                stick.appendChild(result);
+                
+                // 클릭 이벤트 등록
+                stick.addEventListener('click', function() {
+                    pullStick(stick);
+                });
+                
+                lotteryContainer.appendChild(stick);
+            }
+            
+            // 결과 메시지 초기화
+            resultMessage.textContent = '';
+            resultMessage.className = 'result-message';
+            
+            // 게임 상태 초기화
+            pulledSticks = 0;
+            hasWon = false;
+        }
+        
+        // 제비 뽑기
+        function pullStick(stick) {
+            if (stick.classList.contains('pulled')) return;
+            
+            // 클래스 추가
+            stick.classList.add('pulled');
+            
+            // 결과에 따라 클래스 추가
+            if (stick.dataset.result === 'win') {
+                stick.classList.add('winner');
+                hasWon = true;
+                
+                // 축하 애니메이션
+                createConfetti();
+                
+                // 승리 메시지
+                resultMessage.textContent = '축하합니다! 당첨되었습니다! 🎉';
+                resultMessage.className = 'result-message win show';
+                
+                // 승리 횟수 증가
+                winCount++;
+                localStorage.setItem('lotteryGameWinCount', winCount);
+                
+                // 보상 체크
+                checkWinRewards();
+            } else {
+                stick.classList.add('loser');
+            }
+            
+            // 뽑은 제비 수 증가
+            pulledSticks++;
+            
+            // 모든 제비를 뽑았는지 확인
+            if (pulledSticks === stickCount) {
+                if (!hasWon) {
+                    // 패배 메시지
+                    resultMessage.textContent = '아쉽게도 당첨되지 않았습니다. 😢';
+                    resultMessage.className = 'result-message lose show';
+                }
+                
+                // 게임 종료 및 결과 저장
+                endGame();
+            }
+        }
+        
+        // 설정 조정 함수
+        function adjustStickCount(change) {
+            const newValue = parseInt(stickCountInput.value) + change;
+            stickCountInput.value = Math.max(3, Math.min(10, newValue));
+            validateSettings();
+        }
+        
+        function adjustWinnerCount(change) {
+            const newValue = parseInt(winnerCountInput.value) + change;
+            winnerCountInput.value = Math.max(1, Math.min(5, newValue));
+            validateSettings();
+        }
+        
+        // 설정 유효성 검사
+        function validateSettings() {
+            stickCount = parseInt(stickCountInput.value);
+            winnerCount = parseInt(winnerCountInput.value);
+            
+            // 범위 제한
+            stickCount = Math.max(3, Math.min(10, stickCount));
+            winnerCount = Math.max(1, Math.min(5, winnerCount));
+            
+            // 당첨 개수는 제비 개수보다 많을 수 없음
+            winnerCount = Math.min(winnerCount, stickCount - 1);
+            
+            // 입력창 값 업데이트
+            stickCountInput.value = stickCount;
+            winnerCountInput.value = winnerCount;
+            
+            // 제비 다시 생성
+            createLotterySticks();
+        }
+        
+        // 게임 종료
+        function endGame() {
+            // 플레이 횟수 증가
+            playCount++;
+            localStorage.setItem('lotteryGamePlayCount', playCount);
+            
+            // 통계 업데이트
+            updateStats();
+            
+            // 보상 체크
+            checkPlayCountRewards();
+        }
+        
+        // 게임 리셋
+        function resetGame() {
+            validateSettings();
+        }
+        
+        // 통계 업데이트
+        function updateStats() {
+            playCountEl.textContent = playCount;
+            winCountEl.textContent = winCount;
+            
+            const luckPercent = playCount > 0 ? Math.round((winCount / playCount) * 100) : 0;
+            luckPercentEl.textContent = luckPercent + '%';
+            
+            // 행운의 플레이어 보상 체크
+            if (playCount >= 10 && luckPercent >= 50) {
+                saveToGameRewards('lottery_lucky_player');
+            }
+        }
+        
+        // 첫 플레이 보상 확인
+        function checkFirstPlay() {
+            const hasPlayed = localStorage.getItem('lotteryGamePlayed');
+            if (!hasPlayed) {
+                localStorage.setItem('lotteryGamePlayed', 'true');
+                showRewardsNotification('첫 게임 플레이! 🎮 보상이 지급되었습니다.');
+                saveToGameRewards('lottery_first_play');
+            }
+        }
+        
+        // 승리 보상 체크
+        function checkWinRewards() {
+            // 첫 승리 보상
+            if (winCount === 1) {
+                showRewardsNotification('첫 승리! 🥇 축하합니다!');
+                saveToGameRewards('lottery_first_win');
+            }
+            
+            // 10승 보상
+            if (winCount === 10) {
+                showRewardsNotification('10승 달성! 🏆 운이 좋은 플레이어입니다!');
+                saveToGameRewards('lottery_10_wins');
+            }
+            
+            // 모든 게임 승리 보상
+            saveToGameRewards('lottery_win');
+        }
+        
+        // 플레이 횟수 보상 체크
+        function checkPlayCountRewards() {
+            // 10회 플레이 보상
+            if (playCount === 10) {
+                showRewardsNotification('10회 플레이! 🎯 꾸준한 노력에 보상이 주어집니다.');
+                saveToGameRewards('lottery_10_plays');
+            }
+            
+            // 50회 플레이 보상
+            if (playCount === 50) {
+                showRewardsNotification('50회 플레이! 🏅 제비뽑기 마스터!');
+                saveToGameRewards('lottery_50_plays');
+            }
+        }
+        
+        // 보상 시스템에 저장
+        function saveToGameRewards(key) {
+            try {
+                // 전역 gameRewards 객체가 있는지 확인
+                if (typeof window.gameRewards !== 'undefined') {
+                    window.gameRewards.addReward(key);
+                } else {
+                    // localStorage에 임시 저장
+                    const rewards = JSON.parse(localStorage.getItem('gameRewards') || '{}');
+                    rewards[key] = true;
+                    localStorage.setItem('gameRewards', JSON.stringify(rewards));
+                }
+            } catch (e) {
+                console.error('보상 저장 중 오류 발생:', e);
+            }
+        }
+        
+        // 보상 알림 표시
+        function showRewardsNotification(message) {
+            rewardsNotification.textContent = message;
+            rewardsNotification.classList.add('show');
+            
+            setTimeout(() => {
+                rewardsNotification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 폭죽 효과 생성
+        function createConfetti() {
+            confettiContainer.innerHTML = '';
+            
+            const colors = ['#fd79a8', '#00b894', '#0984e3', '#6c5ce7', '#fdcb6e', '#e17055'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                
+                // 랜덤 모양
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = size + 'px';
+                confetti.style.height = size + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                
+                // 애니메이션
+                confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                
+                // 커스텀 애니메이션 추가
+                const keyframes = `
+                    @keyframes confetti-fall {
+                        0% {
+                            transform: translateY(0) rotate(0deg);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                
+                const style = document.createElement('style');
+                style.innerHTML = keyframes;
+                document.head.appendChild(style);
+                
+                confettiContainer.appendChild(confetti);
+            }
+            
+            // 일정 시간 후 폭죽 제거
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 5000);
+        }
+        
+        // 페이지 로드 시 초기화
+        window.onload = init;
+    </script>
+</body>
+</html> 

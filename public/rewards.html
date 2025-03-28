@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>보상 시스템</title>
+    <link rel="stylesheet" href="mobile-styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: #fcc419;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
+            flex-grow: 1;
+            padding: 20px;
+        }
+        
+        .total-score {
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .total-score h2 {
+            margin-top: 0;
+            color: #343a40;
+        }
+        
+        .total-points {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #fcc419;
+            margin: 10px 0;
+        }
+        
+        .level-info {
+            font-size: 1.2rem;
+            color: #495057;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #fcc419;
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+        
+        .game-scores {
+            margin-bottom: 30px;
+        }
+        
+        .score-card {
+            background-color: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .game-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .game-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .game-icon.ai-cursor {
+            background-color: #ff6b6b;
+        }
+        
+        .game-icon.math {
+            background-color: #4dabf7;
+        }
+        
+        .game-icon.word {
+            background-color: #74c0fc;
+        }
+        
+        .game-icon.typing {
+            background-color: #20c997;
+        }
+        
+        .game-icon.memory {
+            background-color: #845ef7;
+        }
+        
+        .game-details h3 {
+            margin: 0 0 5px 0;
+            color: #343a40;
+        }
+        
+        .best-score {
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .game-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fcc419;
+        }
+        
+        .badge-container {
+            margin-bottom: 30px;
+        }
+        
+        .badge-container h2 {
+            margin-top: 0;
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .badges {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .badge-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .badge-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .badge-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .badge-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #343a40;
+        }
+        
+        .badge-desc {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .locked {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        
+        .locked .badge-title::after {
+            content: " 🔒";
+        }
+        
+        .reset-button {
+            background-color: #fa5252;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+        }
+        
+        footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        /* 애니메이션 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .new-badge {
+            animation: pulse 1s infinite;
+            box-shadow: 0 0 15px #ffd43b;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .badges {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .badge-icon {
+                font-size: 2.5rem;
+            }
+            
+            .game-scores {
+                padding: 0;
+            }
+            
+            .score-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                margin-bottom: 10px;
+            }
+            
+            .game-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* 보상 팝업 */
+        .reward-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: 400px;
+            display: none;
+        }
+        
+        .reward-popup h2 {
+            margin-top: 0;
+            color: #343a40;
+        }
+        
+        .reward-icon {
+            font-size: 5rem;
+            margin: 20px 0;
+            animation: pulse 1s infinite;
+        }
+        
+        .reward-desc {
+            margin-bottom: 20px;
+            color: #495057;
+        }
+        
+        .reward-button {
+            background-color: #fcc419;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        /* 로그인 관련 스타일 */
+        .user-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .user-status {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #343a40;
+        }
+        
+        .login-area, .user-area {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .login-input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 250px;
+        }
+        
+        .auth-btn {
+            background-color: #fcc419;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .auth-btn.secondary {
+            background-color: #868e96;
+        }
+        
+        .login-separator {
+            margin: 15px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .login-separator::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 40%;
+            height: 1px;
+            background-color: #dee2e6;
+        }
+        
+        .login-separator::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 0;
+            width: 40%;
+            height: 1px;
+            background-color: #dee2e6;
+        }
+        
+        .login-error {
+            color: #e03131;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .sync-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 0.8rem;
+            color: #20c997;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-btn" onclick="window.location.href='index.html'">홈</button>
+        <h1>나의 보상</h1>
+    </div>
+    
+    <div class="container">
+        <!-- 로그인 섹션 추가 -->
+        <div class="user-section">
+            <div class="user-status">로그인 필요</div>
+            
+            <div class="login-area">
+                <div class="login-inputs">
+                    <input type="email" class="login-input" id="email-input" placeholder="이메일">
+                    <input type="password" class="login-input" id="password-input" placeholder="비밀번호">
+                    <div class="login-error" id="login-error">로그인 오류가 발생했습니다.</div>
+                </div>
+                <div class="login-buttons">
+                    <button class="auth-btn" id="login-btn">로그인</button>
+                    <button class="auth-btn" id="register-btn">회원가입</button>
+                </div>
+                
+                <div class="login-separator">또는</div>
+                <button class="auth-btn secondary" id="guest-login-btn">게스트로 계속하기</button>
+            </div>
+            
+            <div class="user-area" style="display: none;">
+                <div>
+                    <span class="sync-indicator" id="sync-status">✓ 동기화됨</span>
+                </div>
+                <button class="auth-btn secondary" id="logout-btn">로그아웃</button>
+            </div>
+        </div>
+        
+        <div class="total-score">
+            <h2>총 점수</h2>
+            <div class="total-points" id="total-points">0</div>
+            <div class="level-info">레벨: <span id="level">1</span> (<span id="level-name">초보자</span>)</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="level-progress"></div>
+            </div>
+            <div class="level-progress-text">다음 레벨까지: <span id="next-level-points">100</span>점</div>
+        </div>
+        
+        <div class="game-scores">
+            <h2>게임별 최고 점수</h2>
+            
+            <div class="score-card">
+                <div class="game-info">
+                    <div class="game-icon ai-cursor">🎯</div>
+                    <div class="game-details">
+                        <h3>AI 커서 추적 게임</h3>
+                        <div class="best-score">최고 점수</div>
+                    </div>
+                </div>
+                <div class="game-score" id="ai-cursor-score">0</div>
+            </div>
+            
+            <div class="score-card">
+                <div class="game-info">
+                    <div class="game-icon math">🔢</div>
+                    <div class="game-details">
+                        <h3>암산 게임</h3>
+                        <div class="best-score">최고 점수</div>
+                    </div>
+                </div>
+                <div class="game-score" id="math-score">0</div>
+            </div>
+            
+            <div class="score-card">
+                <div class="game-info">
+                    <div class="game-icon word">📝</div>
+                    <div class="game-details">
+                        <h3>단어 게임</h3>
+                        <div class="best-score">최고 점수</div>
+                    </div>
+                </div>
+                <div class="game-score" id="word-score">0</div>
+            </div>
+            
+            <div class="score-card">
+                <div class="game-info">
+                    <div class="game-icon typing">⌨️</div>
+                    <div class="game-details">
+                        <h3>타이핑 마스터</h3>
+                        <div class="best-score">최고 점수</div>
+                    </div>
+                </div>
+                <div class="game-score" id="typing-score">0</div>
+            </div>
+            
+            <div class="score-card">
+                <div class="game-info">
+                    <div class="game-icon memory">🎮</div>
+                    <div class="game-details">
+                        <h3>기억력 카드 게임</h3>
+                        <div class="best-score">최고 점수</div>
+                    </div>
+                </div>
+                <div class="game-score" id="memory-score">0</div>
+            </div>
+        </div>
+        
+        <div class="badge-container">
+            <h2>획득한 배지</h2>
+            <div class="badges" id="badges-container">
+                <!-- 배지는 JS로 동적 생성 -->
+            </div>
+        </div>
+        
+        <button class="reset-button" id="reset-btn">데이터 초기화</button>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="reward-popup" id="reward-popup">
+        <h2>새로운 배지 획득!</h2>
+        <div class="reward-icon" id="reward-icon">🏆</div>
+        <div class="reward-title" id="reward-title">대단한 성과!</div>
+        <div class="reward-desc" id="reward-desc">모든 게임에서 50점 이상을 획득했습니다!</div>
+        <button class="reward-button" id="reward-button">확인</button>
+    </div>
+    
+    <footer>
+        <p>© 2023 교육용 웹 게임 모음. 모든 연령대를 위한 학습 게임입니다.</p>
+    </footer>
+
+    <!-- Firebase 스크립트 추가 -->
+    <script type="module">
+        import { auth, currentUser, loginAsGuest, loginWithEmail, registerWithEmail, logoutUser, saveUserDataToCloud, loadUserDataFromCloud, syncDataWithCloud } from './firebase-config.js';
+        
+        // 로그인 요소 선택
+        const emailInput = document.getElementById('email-input');
+        const passwordInput = document.getElementById('password-input');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const guestLoginBtn = document.getElementById('guest-login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loginError = document.getElementById('login-error');
+        const syncStatus = document.getElementById('sync-status');
+        
+        // 이메일/비밀번호 로그인
+        loginBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                showError('이메일과 비밀번호를 입력해주세요.');
+                return;
+            }
+            
+            try {
+                await loginWithEmail(email, password);
+                hideError();
+            } catch (error) {
+                let errorMessage = '로그인 중 오류가 발생했습니다.';
+                if (error.code === 'auth/invalid-credential') {
+                    errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage = '해당 이메일로 등록된 사용자가 없습니다.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = '비밀번호가 올바르지 않습니다.';
+                }
+                showError(errorMessage);
+            }
+        });
+        
+        // 회원가입
+        registerBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                showError('이메일과 비밀번호를 입력해주세요.');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('비밀번호는 최소 6자 이상이어야 합니다.');
+                return;
+            }
+            
+            try {
+                await registerWithEmail(email, password);
+                hideError();
+            } catch (error) {
+                let errorMessage = '회원가입 중 오류가 발생했습니다.';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = '이미 사용 중인 이메일입니다.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = '올바르지 않은 이메일 형식입니다.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = '비밀번호가 너무 약합니다.';
+                }
+                showError(errorMessage);
+            }
+        });
+        
+        // 게스트 로그인
+        guestLoginBtn.addEventListener('click', async () => {
+            try {
+                await loginAsGuest();
+                hideError();
+            } catch (error) {
+                showError('게스트 로그인 중 오류가 발생했습니다.');
+            }
+        });
+        
+        // 로그아웃
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await logoutUser();
+            } catch (error) {
+                console.error('로그아웃 오류:', error);
+            }
+        });
+        
+        // 에러 표시
+        function showError(message) {
+            loginError.textContent = message;
+            loginError.style.display = 'block';
+        }
+        
+        // 에러 숨기기
+        function hideError() {
+            loginError.style.display = 'none';
+        }
+        
+        // 동기화 상태 업데이트
+        function updateSyncStatus(synced) {
+            syncStatus.textContent = synced ? '✓ 동기화됨' : '⟳ 동기화 중...';
+            syncStatus.style.color = synced ? '#20c997' : '#fcc419';
+        }
+        
+        // 배지 정의
+        const badges = [
+            { id: 'beginner', icon: '🌱', title: '초보자', description: '첫 게임 플레이', requirement: { type: 'play', count: 1 } },
+            { id: 'explorer', icon: '🔍', title: '탐험가', description: '모든 게임 한 번씩 플레이', requirement: { type: 'play_all', count: 1 } },
+            { id: 'master', icon: '🏆', title: '마스터', description: '모든 게임에서 100점 이상 획득', requirement: { type: 'all_score', score: 100 } },
+            { id: 'cursor_pro', icon: '🎯', title: '커서 프로', description: 'AI 커서 게임에서 200점 획득', requirement: { type: 'game_score', game: 'ai-cursor', score: 200 } },
+            { id: 'math_wizard', icon: '🧮', title: '수학 마법사', description: '암산 게임에서 150점 획득', requirement: { type: 'game_score', game: 'math', score: 150 } },
+            { id: 'wordsmith', icon: '📚', title: '언어 대가', description: '단어 게임에서 120점 획득', requirement: { type: 'game_score', game: 'word', score: 120 } },
+            { id: 'typing_master', icon: '⌨️', title: '타이핑 달인', description: '타이핑 게임에서 WPM 80 달성', requirement: { type: 'game_score', game: 'typing', score: 80 } },
+            { id: 'memory_master', icon: '🧠', title: '기억력 천재', description: '기억력 게임에서 500점 획득', requirement: { type: 'game_score', game: 'memory', score: 500 } },
+            { id: 'persistent', icon: '⏱️', title: '지속적인 학습자', description: '5일 연속 게임 플레이', requirement: { type: 'streak', days: 5 } },
+            { id: 'dedicated', icon: '🌟', title: '헌신적인 학습자', description: '총 점수 1000점 달성', requirement: { type: 'total_score', score: 1000 } },
+            { id: 'champion', icon: '👑', title: '게임 챔피언', description: '모든 게임 마스터 배지 획득', requirement: { type: 'all_badges', badges: ['cursor_pro', 'math_wizard', 'wordsmith', 'typing_master', 'memory_master'] } }
+        ];
+        
+        // 레벨 정의
+        const levels = [
+            { level: 1, name: '초보자', threshold: 0 },
+            { level: 2, name: '견습생', threshold: 100 },
+            { level: 3, name: '학생', threshold: 300 },
+            { level: 4, name: '연습생', threshold: 600 },
+            { level: 5, name: '능숙한 플레이어', threshold: 1000 },
+            { level: 6, name: '전문가', threshold: 1500 },
+            { level: 7, name: '마스터', threshold: 2500 },
+            { level: 8, name: '그랜드 마스터', threshold: 4000 },
+            { level: 9, name: '챔피언', threshold: 6000 },
+            { level: 10, name: '레전드', threshold: 10000 }
+        ];
+        
+        // 요소 선택
+        const totalPointsElement = document.getElementById('total-points');
+        const levelElement = document.getElementById('level');
+        const levelNameElement = document.getElementById('level-name');
+        const levelProgressElement = document.getElementById('level-progress');
+        const nextLevelPointsElement = document.getElementById('next-level-points');
+        const badgesContainer = document.getElementById('badges-container');
+        const resetBtn = document.getElementById('reset-btn');
+        const overlay = document.getElementById('overlay');
+        const rewardPopup = document.getElementById('reward-popup');
+        const rewardIcon = document.getElementById('reward-icon');
+        const rewardTitle = document.getElementById('reward-title');
+        const rewardDesc = document.getElementById('reward-desc');
+        const rewardButton = document.getElementById('reward-button');
+        
+        // 게임 점수 요소
+        const gameScoreElements = {
+            'ai-cursor': document.getElementById('ai-cursor-score'),
+            'math': document.getElementById('math-score'),
+            'word': document.getElementById('word-score'),
+            'typing': document.getElementById('typing-score'),
+            'memory': document.getElementById('memory-score')
+        };
+        
+        // 사용자 데이터
+        let userData = null;
+        
+        // 초기 로드 시 UI 업데이트
+        loadUserData().then(() => {
+            updateUI();
+            // 배지 체크 (처음 페이지 로드 시)
+            checkForNewBadges();
+        });
+        
+        // 데이터 로드 함수 (Firebase 연동)
+        async function loadUserData() {
+            updateSyncStatus(false);
+            
+            const defaultData = {
+                scores: {
+                    'ai-cursor': 0,
+                    'math': 0,
+                    'word': 0,
+                    'typing': 0,
+                    'memory': 0
+                },
+                totalScore: 0,
+                badges: [],
+                visitedGames: [],
+                lastPlayed: null,
+                streak: 0,
+                streakLastUpdated: null
+            };
+            
+            // 로컬 데이터 먼저 로드
+            const localData = localStorage.getItem('educationalGamesData');
+            let localUserData = localData ? JSON.parse(localData) : null;
+            
+            // 로그인된 경우 클라우드 데이터 로드 시도
+            let cloudData = null;
+            if (currentUser) {
+                try {
+                    cloudData = await loadUserDataFromCloud();
+                } catch (error) {
+                    console.error('클라우드 데이터 로드 실패:', error);
+                }
+            }
+            
+            // 데이터 병합 또는 사용
+            if (cloudData && localUserData) {
+                // 두 데이터 병합 (더 높은 점수 유지)
+                userData = mergeUserData(localUserData, cloudData);
+                
+                // 로컬 저장소에 병합된 데이터 저장
+                localStorage.setItem('educationalGamesData', JSON.stringify(userData));
+                
+                // 클라우드에 병합된 데이터 저장
+                if (currentUser) {
+                    try {
+                        await saveUserDataToCloud(userData);
+                    } catch (error) {
+                        console.error('클라우드 데이터 저장 실패:', error);
+                    }
+                }
+            } else if (cloudData) {
+                // 클라우드 데이터만 있는 경우
+                userData = cloudData;
+                localStorage.setItem('educationalGamesData', JSON.stringify(userData));
+            } else if (localUserData) {
+                // 로컬 데이터만 있는 경우
+                userData = localUserData;
+                
+                // 로그인된 경우 클라우드에 저장
+                if (currentUser) {
+                    try {
+                        await saveUserDataToCloud(userData);
+                    } catch (error) {
+                        console.error('클라우드 데이터 저장 실패:', error);
+                    }
+                }
+            } else {
+                // 둘 다 없는 경우 기본 데이터 사용
+                userData = defaultData;
+                localStorage.setItem('educationalGamesData', JSON.stringify(userData));
+            }
+            
+            updateSyncStatus(true);
+            return userData;
+        }
+        
+        // 데이터 저장 함수
+        async function saveUserData() {
+            updateSyncStatus(false);
+            
+            // 로컬 저장소에 저장
+            localStorage.setItem('educationalGamesData', JSON.stringify(userData));
+            
+            // 로그인된 경우 클라우드에 저장
+            if (currentUser) {
+                try {
+                    await saveUserDataToCloud(userData);
+                    updateSyncStatus(true);
+                } catch (error) {
+                    console.error('클라우드 데이터 저장 실패:', error);
+                    updateSyncStatus(false);
+                }
+            } else {
+                updateSyncStatus(true);
+            }
+        }
+        
+        // 두 사용자 데이터 병합 (점수는 더 높은 것으로 유지)
+        function mergeUserData(localData, cloudData) {
+            const result = JSON.parse(JSON.stringify(cloudData)); // 깊은 복사
+            
+            // 각 게임 점수 비교하여 높은 점수 사용
+            if (localData.scores && result.scores) {
+                for (const game in localData.scores) {
+                    if (localData.scores[game] > (result.scores[game] || 0)) {
+                        result.scores[game] = localData.scores[game];
+                    }
+                }
+            }
+            
+            // 배지 병합 (중복 제거)
+            if (localData.badges && result.badges) {
+                const badgeSet = new Set([...result.badges, ...localData.badges]);
+                result.badges = Array.from(badgeSet);
+            }
+            
+            // 총 점수 재계산
+            if (result.scores) {
+                result.totalScore = Object.values(result.scores).reduce((total, score) => total + score, 0);
+            }
+            
+            // 방문한 게임 병합
+            if (localData.visitedGames && result.visitedGames) {
+                const gamesSet = new Set([...result.visitedGames, ...localData.visitedGames]);
+                result.visitedGames = Array.from(gamesSet);
+            }
+            
+            // 연속 플레이 정보 최신 것으로 유지
+            if (localData.streak && localData.streakLastUpdated && result.streakLastUpdated) {
+                const localDate = new Date(localData.streakLastUpdated);
+                const cloudDate = new Date(result.streakLastUpdated);
+                
+                if (localDate > cloudDate) {
+                    result.streak = localData.streak;
+                    result.streakLastUpdated = localData.streakLastUpdated;
+                }
+            }
+            
+            return result;
+        }
+        
+        // UI 업데이트 함수
+        function updateUI() {
+            if (!userData) return;
+            
+            // 총 점수 및 레벨 업데이트
+            totalPointsElement.textContent = userData.totalScore;
+            
+            // 현재 레벨 찾기
+            const currentLevel = levels.findLast(level => userData.totalScore >= level.threshold) || levels[0];
+            const nextLevel = levels.find(level => userData.totalScore < level.threshold) || levels[levels.length - 1];
+            
+            levelElement.textContent = currentLevel.level;
+            levelNameElement.textContent = currentLevel.name;
+            
+            // 다음 레벨까지 필요한 점수
+            const pointsToNextLevel = nextLevel.threshold - userData.totalScore;
+            nextLevelPointsElement.textContent = pointsToNextLevel;
+            
+            // 레벨 진행도
+            const currentLevelThreshold = currentLevel.threshold;
+            const nextLevelThreshold = nextLevel.threshold;
+            const levelRange = nextLevelThreshold - currentLevelThreshold;
+            const progress = userData.totalScore - currentLevelThreshold;
+            const progressPercentage = levelRange > 0 ? (progress / levelRange) * 100 : 100;
+            
+            levelProgressElement.style.width = `${Math.min(progressPercentage, 100)}%`;
+            
+            // 게임별 점수 업데이트
+            for (const game in userData.scores) {
+                if (gameScoreElements[game]) {
+                    gameScoreElements[game].textContent = userData.scores[game];
+                }
+            }
+            
+            // 배지 업데이트
+            updateBadges();
+        }
+        
+        // 배지 업데이트 함수
+        function updateBadges() {
+            badgesContainer.innerHTML = '';
+            
+            badges.forEach(badge => {
+                const hasBadge = userData.badges.includes(badge.id);
+                
+                const badgeElement = document.createElement('div');
+                badgeElement.className = `badge-card ${hasBadge ? '' : 'locked'}`;
+                
+                badgeElement.innerHTML = `
+                    <div class="badge-icon">${badge.icon}</div>
+                    <div class="badge-title">${badge.title}</div>
+                    <div class="badge-desc">${badge.description}</div>
+                `;
+                
+                badgesContainer.appendChild(badgeElement);
+            });
+        }
+        
+        // 배지 체크 함수
+        async function checkForNewBadges() {
+            if (!userData) return;
+            
+            const newBadges = [];
+            
+            badges.forEach(badge => {
+                if (userData.badges.includes(badge.id)) {
+                    return; // 이미 가진 배지는 건너뜀
+                }
+                
+                let earned = false;
+                
+                switch (badge.requirement.type) {
+                    case 'play':
+                        earned = userData.visitedGames.length >= badge.requirement.count;
+                        break;
+                    case 'play_all':
+                        earned = userData.visitedGames.length >= 5; // 모든 게임 플레이
+                        break;
+                    case 'all_score':
+                        earned = Object.values(userData.scores).every(score => score >= badge.requirement.score);
+                        break;
+                    case 'game_score':
+                        earned = userData.scores[badge.requirement.game] >= badge.requirement.score;
+                        break;
+                    case 'streak':
+                        earned = userData.streak >= badge.requirement.days;
+                        break;
+                    case 'total_score':
+                        earned = userData.totalScore >= badge.requirement.score;
+                        break;
+                    case 'all_badges':
+                        earned = badge.requirement.badges.every(badgeId => userData.badges.includes(badgeId));
+                        break;
+                }
+                
+                if (earned) {
+                    userData.badges.push(badge.id);
+                    newBadges.push(badge);
+                }
+            });
+            
+            if (newBadges.length > 0) {
+                await saveUserData();
+                showRewardPopup(newBadges[0]);
+            }
+        }
+        
+        // 보상 팝업 표시 함수
+        function showRewardPopup(badge) {
+            rewardIcon.textContent = badge.icon;
+            rewardTitle.textContent = badge.title;
+            rewardDesc.textContent = badge.description;
+            
+            overlay.style.display = 'block';
+            rewardPopup.style.display = 'block';
+        }
+        
+        // 보상 팝업 닫기 함수
+        function closeRewardPopup() {
+            overlay.style.display = 'none';
+            rewardPopup.style.display = 'none';
+            
+            // UI 업데이트
+            updateUI();
+            
+            // 다음 배지 체크
+            checkForNewBadges();
+        }
+        
+        // 연속 플레이 업데이트 함수
+        async function updateStreak() {
+            const today = new Date().toDateString();
+            
+            // 처음 방문한 경우
+            if (!userData.streakLastUpdated) {
+                userData.streak = 1;
+                userData.streakLastUpdated = today;
+                await saveUserData();
+                return;
+            }
+            
+            const lastDate = new Date(userData.streakLastUpdated);
+            const currentDate = new Date(today);
+            const diffDays = Math.floor((currentDate - lastDate) / (24 * 60 * 60 * 1000));
+            
+            if (diffDays === 1) {
+                // 연속 방문
+                userData.streak += 1;
+                userData.streakLastUpdated = today;
+                await saveUserData();
+            } else if (diffDays > 1) {
+                // 연속 방문 끊김
+                userData.streak = 1;
+                userData.streakLastUpdated = today;
+                await saveUserData();
+            }
+            // 같은 날 재방문은 무시
+        }
+        
+        // 이벤트 리스너
+        resetBtn.addEventListener('click', async () => {
+            if (confirm('모든 게임 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                userData = {
+                    scores: {
+                        'ai-cursor': 0,
+                        'math': 0,
+                        'word': 0,
+                        'typing': 0,
+                        'memory': 0
+                    },
+                    totalScore: 0,
+                    badges: [],
+                    visitedGames: [],
+                    lastPlayed: null,
+                    streak: 0,
+                    streakLastUpdated: null
+                };
+                
+                await saveUserData();
+                updateUI();
+            }
+        });
+        
+        rewardButton.addEventListener('click', closeRewardPopup);
+        
+        // 페이지 로드 시 연속 플레이 업데이트
+        loadUserData().then(() => {
+            updateStreak();
+        });
+        
+        // 게임 API 함수 (다른 게임들에서 호출)
+        window.gameRewards = {
+            // 게임 점수 업데이트
+            updateScore: async function(game, score) {
+                if (!userData || !userData.scores.hasOwnProperty(game)) {
+                    await loadUserData();
+                    if (!userData.scores.hasOwnProperty(game)) {
+                        return;
+                    }
+                }
+                
+                // 최고 점수 업데이트
+                if (score > userData.scores[game]) {
+                    // 추가 점수는 최고 점수와의 차이만큼만
+                    const scoreDiff = score - userData.scores[game];
+                    userData.totalScore += scoreDiff;
+                    userData.scores[game] = score;
+                }
+                
+                // 방문한 게임 목록 업데이트
+                if (!userData.visitedGames.includes(game)) {
+                    userData.visitedGames.push(game);
+                }
+                
+                // 데이터 저장
+                await saveUserData();
+                
+                // 새 배지 체크
+                return checkForNewBadges();
+            },
+            
+            // 최고 점수 가져오기
+            getBestScore: async function(game) {
+                if (!userData) {
+                    await loadUserData();
+                }
+                return userData.scores[game] || 0;
+            }
+        };
+    </script>
+</body>
+</html> 

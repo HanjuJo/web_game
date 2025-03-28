@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>숫자 기억하기 게임 - 모두의 게임</title>
+    <link rel="stylesheet" href="../mobile-styles.css">
+    <link rel="stylesheet" href="../common-styles.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --text-color: #2d3436;
+            --light-color: #f7f7f7;
+            --success-color: #00b894;
+            --error-color: #d63031;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .container {
+            width: 95%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .number-display {
+            font-size: 4rem;
+            font-weight: bold;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            color: var(--primary-color);
+            letter-spacing: 3px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .number-input {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .input-field {
+            font-size: 1.2rem;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            width: 200px;
+            text-align: center;
+            letter-spacing: 2px;
+            font-family: monospace;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            height: 40px;
+        }
+
+        .correct { color: var(--success-color); }
+        .incorrect { color: var(--error-color); }
+
+        .level-info {
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 5px;
+        }
+
+        .game-rules {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .game-rules h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .game-rules ul {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        .game-rules li {
+            margin-bottom: 8px;
+        }
+
+        .countdown {
+            font-size: 5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .rewards-notification {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            z-index: 1000;
+            transition: bottom 0.5s;
+        }
+
+        .rewards-notification.show {
+            bottom: 20px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        @media (max-width: 768px) {
+            .number-display {
+                font-size: 3rem;
+                height: 100px;
+            }
+            
+            .input-field {
+                width: 160px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+        }
+        
+        .developer-credit {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="home-btn" onclick="window.location.href='../index.html'">홈</button>
+        <h1>숫자 기억하기 게임</h1>
+    </div>
+    
+    <div class="container">
+        <div class="game-section">
+            <p>아래에 표시되는 숫자를 정확하게 기억하여 입력해보세요!</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="timer-bar"></div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div>현재 레벨</div>
+                    <div class="stat-value" id="current-level">1</div>
+                </div>
+                <div class="stat">
+                    <div>최고 레벨</div>
+                    <div class="stat-value" id="best-level">1</div>
+                </div>
+                <div class="stat">
+                    <div>남은 생명</div>
+                    <div class="stat-value" id="lives">3</div>
+                </div>
+            </div>
+            
+            <div id="countdown" class="countdown"></div>
+            <div id="number-display" class="number-display"></div>
+            
+            <div id="number-input" class="number-input">
+                <input type="text" id="input-field" class="input-field" placeholder="숫자를 입력하세요" autocomplete="off">
+                <button id="submit-btn" class="btn">제출</button>
+            </div>
+            
+            <div id="feedback" class="feedback"></div>
+            
+            <button id="start-btn" class="btn">게임 시작</button>
+        </div>
+        
+        <div class="game-rules">
+            <h3>게임 규칙</h3>
+            <ul>
+                <li>숫자가 화면에 잠시 표시되었다가 사라집니다.</li>
+                <li>표시된 숫자를 기억했다가 입력창에 정확히 입력하세요.</li>
+                <li>레벨이 올라갈수록 기억해야 할 숫자의 자릿수가 증가합니다.</li>
+                <li>총 3번의 기회가 있으며, 틀릴 때마다 생명이 하나씩 감소합니다.</li>
+                <li>최고 레벨을 달성하면 특별한 보상이 주어집니다.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="rewards-notification" id="rewards-notification"></div>
+    
+    <div class="footer">
+        <p>© 2023 모두의 게임 | <span class="developer-credit">개발자: <strong>윤성</strong></span></p>
+    </div>
+    
+    <script>
+        // 게임 상태 변수
+        let currentLevel = 1;
+        let lives = 3;
+        let currentNumber = '';
+        let bestLevel = parseInt(localStorage.getItem('numberMemoryBestLevel') || 1);
+        let gameActive = false;
+        let timerInterval = null;
+        
+        // DOM 요소
+        const numberDisplay = document.getElementById('number-display');
+        const inputElement = document.getElementById('input-field');
+        const submitButton = document.getElementById('submit-btn');
+        const startButton = document.getElementById('start-btn');
+        const feedbackElement = document.getElementById('feedback');
+        const currentLevelEl = document.getElementById('current-level');
+        const bestLevelEl = document.getElementById('best-level');
+        const livesEl = document.getElementById('lives');
+        const numberInput = document.getElementById('number-input');
+        const countdownEl = document.getElementById('countdown');
+        const rewardsNotification = document.getElementById('rewards-notification');
+        const timerBar = document.getElementById('timer-bar');
+        
+        // 초기화
+        function init() {
+            bestLevelEl.textContent = bestLevel;
+            livesEl.textContent = lives;
+            
+            // 이벤트 리스너 등록
+            submitButton.addEventListener('click', checkAnswer);
+            startButton.addEventListener('click', startGame);
+            inputElement.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+        }
+        
+        // 게임 시작
+        function startGame() {
+            if (gameActive) return;
+            
+            // 게임 상태 초기화
+            resetGame();
+            
+            // 첫 라운드 시작
+            playRound();
+            
+            // 첫 플레이 보상 확인
+            checkFirstPlay();
+        }
+        
+        // 게임 라운드 진행
+        function playRound() {
+            gameActive = true;
+            startButton.style.display = 'none';
+            numberInput.style.display = 'none';
+            feedbackElement.textContent = '';
+            
+            // 레벨에 따른 숫자 생성
+            generateNumber();
+            
+            // 카운트다운 시작
+            startCountdown(3);
+        }
+        
+        // 카운트다운
+        function startCountdown(seconds) {
+            countdownEl.style.display = 'flex';
+            numberDisplay.style.opacity = '0';
+            
+            let count = seconds;
+            countdownEl.textContent = count;
+            
+            const countInterval = setInterval(() => {
+                count--;
+                countdownEl.textContent = count;
+                
+                if (count <= 0) {
+                    clearInterval(countInterval);
+                    countdownEl.style.display = 'none';
+                    showNumber();
+                }
+            }, 1000);
+        }
+        
+        // 숫자 표시
+        function showNumber() {
+            numberDisplay.textContent = currentNumber;
+            numberDisplay.style.opacity = '1';
+            
+            // 타이머 시작 (레벨에 따라 시간 조절)
+            let displayTime = Math.max(1, 5 - Math.floor(currentLevel / 3));
+            let timeLeft = displayTime;
+            timerBar.style.width = '100%';
+            
+            // 타이머 바 애니메이션
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                const percentage = (timeLeft / displayTime) * 100;
+                timerBar.style.width = percentage + '%';
+            }, 100);
+            
+            // 일정 시간 후 숫자 숨기기
+            setTimeout(() => {
+                numberDisplay.style.opacity = '0';
+                clearInterval(timerInterval);
+                timerBar.style.width = '0%';
+                
+                // 입력 필드 표시
+                setTimeout(() => {
+                    numberInput.style.display = 'block';
+                    inputElement.focus();
+                }, 300);
+            }, displayTime * 1000);
+        }
+        
+        // 숫자 생성
+        function generateNumber() {
+            const length = currentLevel + 1;
+            let number = '';
+            
+            for (let i = 0; i < length; i++) {
+                // 첫 자리는 0이 나오지 않도록
+                if (i === 0) {
+                    number += Math.floor(Math.random() * 9) + 1;
+                } else {
+                    number += Math.floor(Math.random() * 10);
+                }
+            }
+            
+            currentNumber = number;
+        }
+        
+        // 정답 확인
+        function checkAnswer() {
+            const userAnswer = inputElement.value.trim();
+            
+            if (userAnswer === currentNumber) {
+                // 정답 처리
+                feedbackElement.textContent = '정답입니다! 👍';
+                feedbackElement.className = 'feedback correct';
+                
+                // 다음 레벨로
+                currentLevel++;
+                currentLevelEl.textContent = currentLevel;
+                
+                // 레벨 달성 보상 확인
+                checkLevelAchievement();
+                
+                // 최고 레벨 업데이트
+                if (currentLevel > bestLevel) {
+                    bestLevel = currentLevel;
+                    bestLevelEl.textContent = bestLevel;
+                    localStorage.setItem('numberMemoryBestLevel', bestLevel);
+                    
+                    // 최고 기록 갱신 보상
+                    if (bestLevel >= 5 && bestLevel % 5 === 0) {
+                        showRewardsNotification(`최고 레벨 ${bestLevel} 달성! 🎖️ 특별한 보상이 지급되었습니다.`);
+                        saveToGameRewards('number_memory_level_' + bestLevel);
+                    }
+                }
+                
+                // 다음 라운드 준비
+                setTimeout(() => {
+                    inputElement.value = '';
+                    playRound();
+                }, 1500);
+            } else {
+                // 오답 처리
+                feedbackElement.textContent = '틀렸습니다! 정답은 ' + currentNumber + ' 입니다. 😢';
+                feedbackElement.className = 'feedback incorrect';
+                
+                // 생명 감소
+                lives--;
+                livesEl.textContent = lives;
+                
+                if (lives <= 0) {
+                    // 게임 종료
+                    gameOver();
+                } else {
+                    // 다음 라운드 준비
+                    setTimeout(() => {
+                        inputElement.value = '';
+                        playRound();
+                    }, 2000);
+                }
+            }
+        }
+        
+        // 게임 종료
+        function gameOver() {
+            gameActive = false;
+            startButton.style.display = 'block';
+            startButton.textContent = '다시 시작';
+            
+            // 게임 결과 저장
+            saveGameResult();
+        }
+        
+        // 게임 리셋
+        function resetGame() {
+            currentLevel = 1;
+            lives = 3;
+            currentLevelEl.textContent = currentLevel;
+            livesEl.textContent = lives;
+            feedbackElement.textContent = '';
+            inputElement.value = '';
+            gameActive = false;
+            startButton.textContent = '게임 시작';
+        }
+        
+        // 레벨 달성 보상 확인
+        function checkLevelAchievement() {
+            if (currentLevel === 5) {
+                showRewardsNotification('레벨 5 달성! 🎮 보상이 지급되었습니다.');
+                saveToGameRewards('number_memory_level_5');
+            } else if (currentLevel === 10) {
+                showRewardsNotification('레벨 10 달성! 🏆 대단한 실력입니다!');
+                saveToGameRewards('number_memory_level_10');
+            } else if (currentLevel === 15) {
+                showRewardsNotification('레벨 15 달성! 🥇 당신은 숫자 기억의 달인!');
+                saveToGameRewards('number_memory_level_15');
+            }
+        }
+        
+        // 첫 플레이 보상 확인
+        function checkFirstPlay() {
+            const hasPlayed = localStorage.getItem('numberMemoryPlayed');
+            if (!hasPlayed) {
+                localStorage.setItem('numberMemoryPlayed', 'true');
+                showRewardsNotification('첫 게임 플레이! 🎮 보상이 지급되었습니다.');
+                saveToGameRewards('number_memory_first_play');
+            }
+        }
+        
+        // 게임 결과 저장
+        function saveGameResult() {
+            // 플레이 횟수 저장
+            const playCount = parseInt(localStorage.getItem('numberMemoryPlayCount') || 0) + 1;
+            localStorage.setItem('numberMemoryPlayCount', playCount);
+            
+            // 보상 시스템에 기록
+            if (currentLevel > 1) {
+                saveToGameRewards('number_memory_played');
+            }
+            
+            // 10회 플레이 보상
+            if (playCount === 10) {
+                showRewardsNotification('10회 플레이! 🎯 꾸준한 노력에 보상이 주어집니다.');
+                saveToGameRewards('number_memory_10_plays');
+            }
+        }
+        
+        // 보상 시스템에 저장
+        function saveToGameRewards(key) {
+            try {
+                // 전역 gameRewards 객체가 있는지 확인
+                if (typeof window.gameRewards !== 'undefined') {
+                    window.gameRewards.addReward(key);
+                } else {
+                    // localStorage에 임시 저장
+                    const rewards = JSON.parse(localStorage.getItem('gameRewards') || '{}');
+                    rewards[key] = true;
+                    localStorage.setItem('gameRewards', JSON.stringify(rewards));
+                }
+            } catch (e) {
+                console.error('보상 저장 중 오류 발생:', e);
+            }
+        }
+        
+        // 보상 알림 표시
+        function showRewardsNotification(message) {
+            rewardsNotification.textContent = message;
+            rewardsNotification.classList.add('show');
+            
+            setTimeout(() => {
+                rewardsNotification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 페이지 로드 시 초기화
+        window.onload = init;
+    </script>
+</body>
+</html> 

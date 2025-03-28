@@ -51,22 +51,6 @@
             opacity: 0.9;
         }
 
-        .developer-badge {
-            position: absolute;
-            top: 65px;
-            right: 20px;
-            background-color: rgba(255, 255, 255, 0.25);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            backdrop-filter: blur(5px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transform: rotate(5deg);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
         .rewards-btn {
             position: absolute;
             top: 20px;
@@ -243,90 +227,6 @@
                 font-size: 0.8rem;
                 padding: 6px 12px;
             }
-            .developer-badge {
-                top: auto;
-                bottom: -15px;
-                right: 20px;
-                transform: rotate(0);
-            }
-        }
-
-        .developer-credit {
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            margin-right: 10px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .developer-section {
-            background-color: white;
-            padding: 30px 0;
-            margin-top: 50px;
-        }
-
-        .developer-card {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-        }
-
-        .developer-icon {
-            font-size: 3rem;
-            margin-right: 20px;
-            background-color: white;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .developer-info {
-            flex: 1;
-        }
-
-        .developer-name {
-            color: var(--primary-color);
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-        }
-
-        .developer-description {
-            margin: 0;
-            line-height: 1.6;
-            color: var(--text-color);
-        }
-
-        @media (max-width: 768px) {
-            .developer-card {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .developer-icon {
-                margin-right: 0;
-                margin-bottom: 15px;
-            }
-
-            .developer-name {
-                font-size: 1.5rem;
-            }
         }
     </style>
 </head>
@@ -335,7 +235,6 @@
         <div class="header-content">
             <h1 class="main-title">모두의 게임</h1>
             <p class="main-subtitle">두뇌훈련부터 내기게임까지, 모두 함께 즐겨요!</p>
-            <div class="developer-badge">개발자 윤성의 작품</div>
             <button class="rewards-btn" onclick="window.location.href='rewards.html'">🏆 나의 보상</button>
         </div>
     </header>
@@ -402,7 +301,7 @@
                     <div class="game-content">
                         <h3 class="game-title">숫자 기억하기</h3>
                         <p class="game-description">순서대로 나타나는 숫자를 기억하고 입력하며 단기 기억력을 향상시키는 게임입니다.</p>
-                        <a href="mini-games/number-memory-game.html" class="game-button">시작하기</a>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
                     </div>
                 </div>
             </div>
@@ -452,7 +351,7 @@
                     <div class="game-content">
                         <h3 class="game-title">가위바위보 게임</h3>
                         <p class="game-description">컴퓨터나 친구와 가위바위보 대결을 펼치는 게임입니다. 3판 2선승제로 승자를 가립니다.</p>
-                        <a href="mini-games/rps-game.html" class="game-button">시작하기</a>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
                     </div>
                 </div>
 
@@ -466,7 +365,7 @@
                     <div class="game-content">
                         <h3 class="game-title">제비뽑기</h3>
                         <p class="game-description">여러 항목 중에서 무작위로 선택하는 제비뽑기 게임입니다. 당첨/꽝 비율도 설정 가능!</p>
-                        <a href="mini-games/lottery-game.html" class="game-button">시작하기</a>
+                        <a href="#" class="game-button" style="background-color: #aaa;">준비 중</a>
                     </div>
                 </div>
             </div>
@@ -523,21 +422,9 @@
         </section>
     </main>
 
-    <section class="developer-section">
-        <div class="container">
-            <div class="developer-card">
-                <div class="developer-icon">👨‍💻</div>
-                <div class="developer-info">
-                    <h2 class="developer-name">개발자 윤성</h2>
-                    <p class="developer-description">모두의 게임은 윤성 개발자가 제작한 웹 게임 컬렉션입니다. 사용자 친화적인 인터페이스와 재미있는 게임으로 모든 연령대가 즐길 수 있도록 만들었습니다.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <footer class="footer">
         <p>© 2023 모두의 게임. 모든 연령대를 위한 웹 게임 모음입니다.</p>
-        <p><span class="developer-credit">개발자: <strong>윤성</strong></span> | 문의: contact@example.com</p>
+        <p>문의: contact@example.com</p>
     </footer>
 
     <!-- Firebase 스크립트 -->
